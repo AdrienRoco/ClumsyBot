@@ -16,6 +16,7 @@ module.exports = {
         if (!message.member.hasPermission("ADMINISTRATOR")) {
             return message.reply("You can't delete cdm's....").then(m => m.delete({timeout:3000}).catch());
         }
+        console.log('Cleaning up...');
         for (i in guildIds) {
             const commands = await get_app(client, guildIds[i]).commands.get().catch(() => {console.log("no commands")})
             for (y in commands) {
@@ -27,5 +28,7 @@ module.exports = {
         for (y in commands) {
             await get_app(client, null).commands(commands[y].id).delete().catch(() => {console.log("no command")})
         }
+        console.log('Cleaning done');
+        process.exit(42)
     }
 }

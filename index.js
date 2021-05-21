@@ -54,16 +54,19 @@ client.on('ready', async () => {
                         options: element.args,
                     }})
                 })
+                console.log(`Loaded ${element.name} as a test`);
             } else {
                 get_app().commands.post({data: {
                     name: element.name,
                     description: element.description,
                     options: element.args,
                 }})
+                console.log(`Loaded ${element.name} as a cmd`);
             }
         });
     } catch {console.log("Err in slash loading");}
 
+    console.log('Getting loaded list...');
     let commands
     for (i in guildIds) {
         commands = await get_app(guildIds[i]).commands.get().catch(() => {console.log("no commands")})
@@ -72,7 +75,7 @@ client.on('ready', async () => {
     for (i in commands) {console.log("Global cmd's", i, [commands[i].id, commands[i].name])}
 
     client.user.setActivity('you👀', { type: 'WATCHING' })
-    console.log("client Ready")
+    console.log("client Ready\n")
 })
 
 client.on('message', async message => {
