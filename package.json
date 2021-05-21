@@ -1,0 +1,31 @@
+{
+  "name": "slashbot",
+  "version": "1.0.0",
+  "description": "My Slash Bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AdrienRoco/SlashBot.git"
+  },
+  "keywords": [
+    "Discord",
+    "Slash",
+    "Bot"
+  ],
+  "author": "AdrienRoco",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AdrienRoco/SlashBot/issues"
+  },
+  "homepage": "https://github.com/AdrienRoco/SlashBot#readme",
+  "dependencies": {
+    "ascii-table": "^0.0.9",
+    "discord.js": "^12.5.3",
+    "dotenv": "^9.0.2",
+    "npm": "^7.12.1",
+    "random-puppy": "^1.1.0"
+  }
+}
