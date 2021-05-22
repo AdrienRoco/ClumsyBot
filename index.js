@@ -91,17 +91,17 @@ client.on('message', async message => {
     else {args = message.content.slice(prefix.length).trim().split(/ +/g);}
 
     let commandsName = args.shift().toLowerCase();
-    if (commandsName.length === 0) {message.reply("Say something you mother f***"); message.delete(); return;}
+    if (commandsName.length === 0) {message.reply("Say something you mother f***").catch(); message.delete(); return;}
 
     const command = client.commands.get(commandsName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandsName));
     const admcommand = client.admcommands.get(commandsName) || client.admcommands.find(cmd => cmd.aliases && cmd.aliases.includes(commandsName));
 
     if (message.author.id != client.user.id) {
-        if (!admcommand) {message.reply(`**${commandsName}** is not a command`); message.delete(); return;}
+        if (!admcommand) {message.reply(`**${commandsName}** is not a command`).catch(); message.delete(); return;}
         if (admcommand) admcommand.run(client, message, args);
         message.delete().catch();
     } else {
-        if (!command) {message.channel.send(`**${commandsName}** is not a command`); message.delete(); return;}
+        if (!command) {message.channel.send(`**${commandsName}** is not a command`).catch(); message.delete(); return;}
         if (command) command.run(client, message, args);
     }
 })
