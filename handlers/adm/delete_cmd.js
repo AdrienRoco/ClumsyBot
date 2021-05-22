@@ -8,9 +8,6 @@ function get_app(client, guildId) {
 
 module.exports = {
     name: "delete",
-    aliases: [],
-    category: "admin",
-    description: "clean messages",
     run: async (client, message, args) => {
         const guildIds = ['702461452564430948']
         if (!message.member.hasPermission("ADMINISTRATOR")) {

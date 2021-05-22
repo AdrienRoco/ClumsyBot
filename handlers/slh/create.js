@@ -14,12 +14,16 @@ module.exports = {
             choices: [
                 {
                     name: 'normal',
-                    value: 'false'
+                    value: 'normal'
                 },
                 {
                     name: 'private',
-                    value: 'true'
-                }
+                    value: 'priv'
+                },
+                {
+                    name: 'amongus',
+                    value: 'amongus'
+                },
             ],
         },
     ],
@@ -27,12 +31,17 @@ module.exports = {
         try {
             const log = client.guilds.cache.get(interaction.guild_id).channels.cache.find(chan => chan.name === "🚧bot_log🚧" && chan.type === "text");
             if (!log) {return}
-            if (args[0] == 'true') {
-                log.send(`${client.user} create_channels_p <@${interaction.member.user.id}>`)
+            if (args[0] == 'normal') {
+                log.send(`${client.user} create_channels ${interaction.member.user.id}`)
+                return `Ok, let's go`
+            } else if (args[0] == 'priv') {
+                log.send(`${client.user} create_channels_p ${interaction.member.user.id}`)
+                return `Ok, let's go`
+            } else if (args[0] == 'amongus') {
+                log.send(`${client.user} create_channels_a ${interaction.member.user.id}`)
                 return `Ok, let's go`
             }
-            log.send(`${client.user} create_channels <@${interaction.member.user.id}>`)
-            return `Ok, let's go`
+            return "Oups, I can't do that"
         } catch {return "Oups, I can't do that"}
     },
 }

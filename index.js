@@ -15,9 +15,7 @@ client.slhcommands = new DiscordJS.Collection();
 
 const get_app = (guildId => {
     const app = client.api.applications(client.user.id)
-    if (guildId) {
-        app.guilds(guildId)
-    }
+    if (guildId) {app.guilds(guildId)}
     return app
 })
 

@@ -29,15 +29,15 @@ module.exports = {
             temp_ch_priv = [];
             temp_tx_priv = [];
             await read_file()
-            const author = message.mentions.users.each(user => user).filter(user => !user.bot).first()
+            const author = bot.users.cache.get(args[0])
             const name = author.username;
             var embed = new MessageEmbed().setColor(colors.cyan).setTimestamp()
-            .setThumbnail(bot.users.cache.get(author.id).avatarURL({ dynamic: true, format: 'png', size: 128 }))
+            .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))
             .setTitle("Hi there!")
             .setFooter("Created")
             .setDescription("There is your own private channel!\n`Rules?`\n**Nope!** this channel is temporary.\nEverything you say here will be deleted\nwhen you all leave the channel!")
             .addField(`\`Channel owner:\``, `${author}`)
-            .addField(`\`How can you invite a user?\``, `ex: ${bot.user}\`invite @user_or_role\`\n\n(The / version is comming soon)`)
+            .addField(`\`How can you invite a user?\``, `use /invite and choose a user or a role`)
 
             await message.guild.channels.create(`🔒💢${name}'s channels💢🔒`, {type: 'category', position: 1, permissionOverwrites: [
                 {id: message.guild.roles.everyone, deny: 8589934591},
@@ -53,7 +53,7 @@ module.exports = {
                 await message.guild.channels.create(`🔒💬${name}'s💬🔒`, {type: 'text', parent: createdcat.id, nsfw: true})
                 .then(async createdTChannel => {
                     temp_tx_priv.push({id: createdTChannel.id});
-                    bot.channels.cache.get(createdTChannel.id).send(embed)
+                    createdTChannel.send(embed)
                 })
                 temp_cat_priv.push({ id: createdcat.id})
             })

@@ -22,7 +22,7 @@ async function write_file() {
 }
 
 module.exports = {
-    name: "create_channels",
+    name: "create_channels_a",
     run: async (bot, message, args) => {
         try {
             temp_cat = [];
@@ -30,26 +30,42 @@ module.exports = {
             temp_tx = [];
             await read_file()
             const author = bot.users.cache.get(args[0])
-            const name = author.username;
             var embed = new MessageEmbed().setColor(colors.cyan).setTimestamp()
             .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))
             .setTitle("Hi there!")
             .setFooter("Created")
             .setDescription("There is your own channel!\n`Rules?`\n**Nope!** this channel is temporary.\nEverything you say here will be deleted\nwhen you all leave the channel!")
             .addField(`\`Channel owner:\``, `${author}`)
-
-            await message.guild.channels.create(`💢${name}'s channels💢`, {type: 'category', position: 1})
+            const mira = new MessageEmbed()
+            .setColor(colors.purple)
+            .setTitle('Mira')
+            .attachFiles('./img/amongus/mira.png')
+            .setImage('attachment://mira.png');
+            const polus = new MessageEmbed()
+            .setColor(colors.purple)
+            .setTitle('Polus')
+            .attachFiles('./img/amongus/polus.png')
+            .setImage('attachment://polus.png');
+            const skeld = new MessageEmbed()
+            .setColor(colors.purple)
+            .setTitle('Skeld')
+            .attachFiles('./img/amongus/skeld.png')
+            .setImage('attachment://skeld.png');
+            await message.guild.channels.create(`👻Among Us👻`, {type: 'category', position: 1})
             .then(async createdcat => {
-                await message.guild.channels.create(`🔊${name}'s🔊`, {type: 'voice', parent: createdcat.id})
+                await message.guild.channels.create(`👻Voice👻`, {type: 'voice', parent: createdcat.id, userLimit: 10})
                 .then(async createdVChannel => {
                     temp_ch.push({id: createdVChannel.id});
                     try {await message.guild.members.cache.get(author.id).voice.setChannel(createdVChannel.id)}
                     catch {}
                 })
-                await message.guild.channels.create(`💬${name}'s💬`, {type: 'text', parent: createdcat.id, nsfw: true})
+                await message.guild.channels.create(`👻Text👻`, {type: 'text', parent: createdcat.id, nsfw: true})
                 .then(async createdTChannel => {
                     temp_tx.push({id: createdTChannel.id});
                     createdTChannel.send(embed)
+                    createdTChannel.send(mira)
+                    createdTChannel.send(polus)
+                    createdTChannel.send(skeld)
                 })
                 temp_cat.push({ id: createdcat.id})
             })
