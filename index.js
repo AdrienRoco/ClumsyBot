@@ -98,11 +98,11 @@ client.on('message', async message => {
 
     if (message.author.id != client.user.id) {
         if (!admcommand) {message.reply(`**${commandsName}** is not a command`).catch(); message.delete(); return;}
-        if (admcommand) admcommand.run(client, message, args);
+        if (admcommand) try {admcommand.run(client, message, args)} catch {}
         message.delete().catch();
     } else {
         if (!command) {message.channel.send(`**${commandsName}** is not a command`).catch(); message.delete(); return;}
-        if (command) command.run(client, message, args);
+        if (command) try {command.run(client, message, args)} catch {}
     }
 })
 

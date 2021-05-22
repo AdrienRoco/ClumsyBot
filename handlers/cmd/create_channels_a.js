@@ -62,11 +62,11 @@ module.exports = {
                 await message.guild.channels.create(`👻Text👻`, {type: 'text', parent: createdcat.id, nsfw: true})
                 .then(async createdTChannel => {
                     temp_tx.push({id: createdTChannel.id});
-                    createdTChannel.send(embed)
-                    createdTChannel.send(mira)
-                    createdTChannel.send(polus)
-                    createdTChannel.send(skeld)
-                }).catch()
+                    await createdTChannel.send(embed).catch()
+                    await createdTChannel.send(mira).catch()
+                    await createdTChannel.send(polus).catch()
+                    await createdTChannel.send(skeld).catch()
+                })
                 temp_cat.push({ id: createdcat.id})
             })
             await write_file()
