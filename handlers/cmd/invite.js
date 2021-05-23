@@ -36,7 +36,7 @@ module.exports = {
             temp_ch_priv = [];
             temp_tx_priv = [];
             await read_file()
-            const user = message.mentions.users.each(user => user).filter(user => !user.bot).first()
+            const user = bot.users.cache.get(args[0])
             let mention = message.guild.members.cache.get(args[1])
             if (!mention) mention = message.guild.roles.cache.get(args[1])
             if (!mention) {return}

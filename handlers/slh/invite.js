@@ -56,7 +56,7 @@ module.exports = {
             if (!user_is_in_private(client, interaction.member.user)) {return `You must be in a private chanel`}
             const log = client.guilds.cache.get(interaction.guild_id).channels.cache.find(chan => chan.name === "🚧bot_log🚧" && chan.type === "text");
             if (!log) {return}
-            for (i in args) {log.send(`${client.user} invite <@${interaction.member.user.id}> ${args[i]}`)}
+            for (i in args) {log.send(`${client.user} invite ${interaction.member.user.id} ${args[i]}`)}
             return `Let's go`
         } catch {"Oups, I can't do that"}
     },
