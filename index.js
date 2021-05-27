@@ -2,7 +2,8 @@ const DiscordJS = require('discord.js');
 const colors = require("./colors.json");
 require('dotenv').config({ path: './config/.env' })
 
-const guildIds = ['702461452564430948'];
+const guild_test_ids = ['702461452564430948'];
+const client_test_Id = '698480016207642644';
 const client = new DiscordJS.Client();
 const prefix = 'c!';
 
@@ -43,31 +44,37 @@ const create_api_msg = async (interaction, embed) => {
 
 client.on('ready', async () => {
     try {
-        client.slhcommands.forEach(element => {
-            if (element.test) {
-                guildIds.forEach(id => {
-                    get_app(id).commands.post({data: {
+        if (client.user.id == client_test_Id) {
+            client.slhcommands.forEach(element => {
+                if (element.test) {
+                    guild_test_ids.forEach(id => {
+                        get_app(id).commands.post({data: {
+                            name: element.name,
+                            description: element.description,
+                            options: element.args,
+                        }})
+                    })
+                    console.log(`Loaded ${element.name} as a test`);
+                }
+            });
+        } else {
+            client.slhcommands.forEach(element => {
+                if (!element.test) {
+                    get_app().commands.post({data: {
                         name: element.name,
                         description: element.description,
                         options: element.args,
                     }})
-                })
-                console.log(`Loaded ${element.name} as a test`);
-            } else {
-                get_app().commands.post({data: {
-                    name: element.name,
-                    description: element.description,
-                    options: element.args,
-                }})
-                console.log(`Loaded ${element.name} as a cmd`);
-            }
-        });
+                    console.log(`Loaded ${element.name} as a cmd`);
+                }
+            });
+        }
     } catch {console.log("Err in slash loading");}
 
     console.log('Getting loaded list...');
     let commands
-    for (i in guildIds) {
-        commands = await get_app(guildIds[i]).commands.get().catch(() => {console.log("no commands")})
+    for (i in guild_test_ids) {
+        commands = await get_app(guild_test_ids[i]).commands.get().catch(() => {console.log("no commands")})
         for (y in commands) {console.log("Test   cmd's", y, [commands[y].id, commands[y].name])}}
     commands = await get_app().commands.get().catch(() => {console.log("no commands")})
     for (i in commands) {console.log("Global cmd's", i, [commands[i].id, commands[i].name])}

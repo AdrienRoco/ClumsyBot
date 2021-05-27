@@ -2,8 +2,8 @@ const colors = require("../../colors.json");
 const types = require("../../arg_type.json");
 
 module.exports = {
-    name: 'name',
     test: true,
+    name: 'name',
     description: 'description',
     args: [],
     callback: ({ client, interaction, args }) => {
