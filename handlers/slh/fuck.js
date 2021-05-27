@@ -1,6 +1,6 @@
 const colors = require("../../colors.json");
 const types = require("../../arg_type.json");
-const { MessageEmbed } = require('discord.js')
+const discord = require('discord.js')
 
 module.exports = {
     test: false,
@@ -16,7 +16,7 @@ module.exports = {
     ],
     callback: ({client, args}) => {
         try {
-            const embed = new MessageEmbed()
+            const embed = new discord.MessageEmbed()
             .setTitle('Fuck you')
             .setColor(colors.red)
             if (args[0]) {
