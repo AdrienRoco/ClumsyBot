@@ -4,7 +4,7 @@ const types = require("../../arg_type.json");
 module.exports = {
     test: false,
     name: 'nuke',
-    description: 'Delete multiple message',
+    description: 'Delete multiple messages',
     args: [
         {
             name: 'number',
