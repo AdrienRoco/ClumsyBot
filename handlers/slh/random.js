@@ -15,9 +15,7 @@ async function meme() {
         .setURL(`https://reddit.com/r/${random}`);
         if (img.endsWith("mp4") || img.endsWith("gif")) return img
         return embed
-    } catch {
-        return "Try again"
-    }
+    } catch {return "Try again"}
 }
 
 async function dog() {
@@ -26,9 +24,7 @@ async function dog() {
         const random = subReddits[Math.floor(Math.random() * subReddits.length)];
         const img = await random_search(random);
         return img
-    } catch {
-        return "Try again"
-    }
+    } catch {return "Try again"}
 }
 
 async function cat() {
@@ -37,9 +33,7 @@ async function cat() {
         const random = subReddits[Math.floor(Math.random() * subReddits.length)];
         const img = await random_search(random);
         return img
-    } catch {
-        return "Try again"
-    }
+    } catch {return "Try again"}
 }
 
 module.exports = {

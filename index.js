@@ -83,7 +83,7 @@ client.on('ready', async () => {
     console.log("client Ready\n")
 })
 
-client.on('message', async message => {
+client.on('message', message => {
     const clientid1 = `<@!${client.user.id}>`
     const clientid2 = `<@${client.user.id}>`
 
@@ -130,7 +130,7 @@ client.on("voiceStateUpdate", (oldMember, newMember) => {
         } else if (newV == null) {
             embed.setColor(colors.red)
             .setDescription(`📤${newMember.member} **left\nchannel:** \`${oldV.name}\``)
-            botlog.send(`<@!${client.user.id}> delete_channels ${newMember.guild.id}`)
+            botlog.send(`${client.user} delete_channels ${newMember.guild.id}`)
         } else {
             embed.setColor(colors.yellow)
             .setDescription(`✈️${newMember.member} **mouved\nfrom:** \`${oldV.name}\` **\nto:** \`${newV.name}\``)
