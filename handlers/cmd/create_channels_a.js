@@ -53,12 +53,6 @@ module.exports = {
             .setImage('attachment://skeld.png');
             await message.guild.channels.create(`👻Among Us👻`, {type: 'category', position: 1})
             .then(async createdcat => {
-                await message.guild.channels.create(`👻Voice👻`, {type: 'voice', parent: createdcat.id, userLimit: 10})
-                .then(async createdVChannel => {
-                    temp_ch.push({id: createdVChannel.id});
-                    try {await message.guild.members.cache.get(author.id).voice.setChannel(createdVChannel.id)}
-                    catch {}
-                })
                 await message.guild.channels.create(`👻Text👻`, {type: 'text', parent: createdcat.id, nsfw: true})
                 .then(async createdTChannel => {
                     temp_tx.push({id: createdTChannel.id});
@@ -66,6 +60,12 @@ module.exports = {
                     try {await createdTChannel.send(mira).catch()} catch {}
                     try {await createdTChannel.send(polus).catch()} catch {}
                     try {await createdTChannel.send(skeld).catch()} catch {}
+                })
+                await message.guild.channels.create(`👻Voice👻`, {type: 'voice', parent: createdcat.id, userLimit: 10})
+                .then(async createdVChannel => {
+                    temp_ch.push({id: createdVChannel.id});
+                    try {await message.guild.members.cache.get(author.id).voice.setChannel(createdVChannel.id)}
+                    catch {}
                 })
                 temp_cat.push({ id: createdcat.id})
             })

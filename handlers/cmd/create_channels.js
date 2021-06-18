@@ -40,16 +40,16 @@ module.exports = {
 
             await message.guild.channels.create(`💢${name}'s channels💢`, {type: 'category', position: 1})
             .then(async createdcat => {
+                await message.guild.channels.create(`💬${name}'s💬`, {type: 'text', parent: createdcat.id, nsfw: true})
+                .then(async createdTChannel => {
+                    temp_tx.push({id: createdTChannel.id});
+                    try {await createdTChannel.send(embed).catch()} catch {}
+                })
                 await message.guild.channels.create(`🔊${name}'s🔊`, {type: 'voice', parent: createdcat.id})
                 .then(async createdVChannel => {
                     temp_ch.push({id: createdVChannel.id});
                     try {await message.guild.members.cache.get(author.id).voice.setChannel(createdVChannel.id)}
                     catch {}
-                })
-                await message.guild.channels.create(`💬${name}'s💬`, {type: 'text', parent: createdcat.id, nsfw: true})
-                .then(async createdTChannel => {
-                    temp_tx.push({id: createdTChannel.id});
-                    try {await createdTChannel.send(embed).catch()} catch {}
                 })
                 temp_cat.push({ id: createdcat.id})
             })

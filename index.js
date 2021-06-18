@@ -7,7 +7,7 @@ const client_test_Id = '698480016207642644';
 const client = new DiscordJS.Client();
 const prefix = 'c!';
 
-client.commands = new DiscordJS.Collection();
+client.botcommands = new DiscordJS.Collection();
 client.admcommands = new DiscordJS.Collection();
 client.slhcommands = new DiscordJS.Collection();
 ["command"].forEach(handler => {
@@ -97,19 +97,19 @@ client.on('message', message => {
     else if (message.content.startsWith(clientid2)) {args = message.content.slice(clientid2.length).trim().split(/ +/g);}
     else {args = message.content.slice(prefix.length).trim().split(/ +/g);}
 
-    let commandsName = args.shift().toLowerCase();
-    if (commandsName.length === 0) {message.reply("Say something you mother f***").catch(); message.delete(); return;}
+    let commandName = args.shift().toLowerCase();
+    if (commandName.length === 0) {message.reply("Say something you mother f***").catch(); message.delete(); return;}
 
-    const command = client.commands.get(commandsName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandsName));
-    const admcommand = client.admcommands.get(commandsName) || client.admcommands.find(cmd => cmd.aliases && cmd.aliases.includes(commandsName));
+    const botcommand = client.botcommands.get(commandName)
+    const admcommand = client.admcommands.get(commandName)
 
     if (message.author.id != client.user.id) {
-        if (!admcommand) {message.reply(`**${commandsName}** is not a command`).catch(); message.delete(); return;}
+        if (!admcommand) {message.reply(`**${commandName}** is not a command`).catch(); message.delete(); return;}
         if (admcommand) try {admcommand.run(client, message, args)} catch {}
         message.delete().catch();
     } else {
-        if (!command) {message.channel.send(`**${commandsName}** is not a command`).catch(); message.delete(); return;}
-        if (command) try {command.run(client, message, args)} catch {}
+        if (!botcommand) {message.channel.send(`**${commandName}** is not a command`).catch(); message.delete(); return;}
+        if (botcommand) try {botcommand.run(client, message, args)} catch {}
     }
 })
 
@@ -131,6 +131,7 @@ client.on("voiceStateUpdate", (oldMember, newMember) => {
             embed.setColor(colors.red)
             .setDescription(`📤${newMember.member} **left\nchannel:** \`${oldV.name}\``)
             botlog.send(`${client.user} delete_channels ${newMember.guild.id}`)
+            // try {client.botcommands.get('delete_channels').run(client, undefined, newMember.guild.id)} catch (err) {console.log(err);}
         } else {
             embed.setColor(colors.yellow)
             .setDescription(`✈️${newMember.member} **moved\nfrom:** \`${oldV.name}\` **\nto:** \`${newV.name}\``)

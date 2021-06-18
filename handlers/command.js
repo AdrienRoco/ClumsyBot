@@ -1,6 +1,5 @@
 const { readdirSync } = require("fs");
-const ascii = require("ascii-table");
-const { get } = require("http");
+const ascii = require('ascii-table');
 
 let table = new ascii("Commands");
 table.setHeading("Command", "Load status", "Type");
@@ -25,7 +24,7 @@ module.exports = (client) => {
                     }
                 } else if (dir == "cmd") {
                     if (pull.name) {
-                        client.commands.set(pull.name, pull);
+                        client.botcommands.set(pull.name, pull);
                         table.addRow(file, '✔️', '2️⃣');
                     } else {
                         table.addRow(file, '❌', '❌');
