@@ -64,13 +64,12 @@ module.exports = {
     ],
     callback: async ({ args }) => {
         try {
-            if (args[0] == 'meme')
-                return await meme()
-            else if (args[0] == 'dog')
-                return await dog()
-            else if (args[0] == 'cat')
-                return await cat()
-            return "Opus, I don't know about that";
+            switch (args[0]) {
+                case 'meme': return await meme()
+                case 'dog': return await dog()
+                case 'cat': return await cat()
+                default: return "Oups, I don't know about that"
+            }
         } catch {return "Oups, I can't do that"}
     },
 }

@@ -31,17 +31,18 @@ module.exports = {
         try {
             const log = client.guilds.cache.get(interaction.guild_id).channels.cache.find(chan => chan.name === "🚧bot_log🚧" && chan.type === "text");
             if (!log) {return}
-            if (args[0] == 'normal') {
-                log.send(`${client.user} create_channels ${interaction.member.user.id}`)
-                return `Ok, let's go`
-            } else if (args[0] == 'priv') {
-                log.send(`${client.user} create_channels_p ${interaction.member.user.id}`)
-                return `Ok, let's go`
-            } else if (args[0] == 'amongus') {
-                log.send(`${client.user} create_channels_a ${interaction.member.user.id}`)
-                return `Ok, let's go`
+            switch (args[0]) {
+                case 'normal':
+                    log.send(`${client.user} create_channels ${interaction.member.user.id}`)
+                    return `Ok, let's go`
+                case 'priv':
+                    log.send(`${client.user} create_channels_p ${interaction.member.user.id}`)
+                    return `Ok, let's go`
+                case 'amongus':
+                    log.send(`${client.user} create_channels_a ${interaction.member.user.id}`)
+                    return `Ok, let's go`
+                default: return "Oups, I can't do that"
             }
-            return "Oups, I can't do that"
         } catch {return "Oups, I can't do that"}
     },
 }

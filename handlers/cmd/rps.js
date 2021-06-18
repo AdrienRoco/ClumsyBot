@@ -146,7 +146,7 @@ module.exports = {
         if (gm) {
             var embed1 = new MessageEmbed().setColor(colors.blue).setTitle('Rock Paper Scissor').setFooter('Make your choice:').addField('Players :', `${author} and ${mention}`);
             var embed2 = new MessageEmbed().setColor(colors.orange).setTitle('Rock Paper Scissor').setFooter('Waiting for the other player...').addField('Players :', `${author} and ${mention}`);
-            embed.addField('Players :', `${author} and ${mention}`).addField(`Do you accepte the challenge?`, `${mention}`);
+            embed.addField('Players :', `${author} and ${mention}`).addField(`Do you accept the challenge?`, `${mention}`);
             const m = await mchan.send(embed)
             const react = await promptMessage(m, mention, 25, ["✔️", "❌"])
             embed.fields = [];

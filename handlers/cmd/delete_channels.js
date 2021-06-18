@@ -64,7 +64,7 @@ module.exports = {
                 const c_ch = await guild.channels.cache.get(temp_cat[i].id);
                 const t_ch = await guild.channels.cache.get(temp_tx[i].id);
                 const v_ch = await guild.channels.cache.get(temp_ch[i].id);
-                if (v_ch && v_ch.members.size <= 0) {wait(1500)}
+                if (v_ch && v_ch.members.size <= 0) {wait(2000)}
                 if (v_ch && v_ch.members.size <= 0) {
                     await v_ch.delete().catch()
                     await t_ch.delete().catch()
@@ -74,13 +74,13 @@ module.exports = {
                     temp_cat.splice(i, 1)
                 }
                 await write_file()
-                wait(100)
+                wait(500)
             }
             for (let i = temp_cat_priv.length - 1; i >= 0; i--) {
                 const c_ch_p = await guild.channels.cache.get(temp_cat_priv[i].id);
                 const t_ch_p = await guild.channels.cache.get(temp_tx_priv[i].id);
                 const v_ch_p = await guild.channels.cache.get(temp_ch_priv[i].id);
-                if (v_ch_p && v_ch_p.members.size <= 0) {wait(1500)}
+                if (v_ch_p && v_ch_p.members.size <= 0) {wait(2000)}
                 if (v_ch_p && v_ch_p.members.size <= 0) {
                     await v_ch_p.delete().catch()
                     await t_ch_p.delete().catch()
@@ -90,7 +90,7 @@ module.exports = {
                     temp_cat_priv.splice(i, 1)
                 }
                 await write_priv_file()
-                wait(100)
+                wait(500)
             }
         } catch {return}
     }
