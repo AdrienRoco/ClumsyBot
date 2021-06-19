@@ -10,11 +10,8 @@ function wait(ms) {
 }
 
 async function promptMessage(message, author, time, validReactions, player) {
-    // We put in the time as seconds, with this it's being transfered to MS
     time *= 1000;
-    // For every emoji in the function parameters, react in the good order.
     for (const reaction of validReactions) await message.react(reaction);
-    // Only allow reactions from the author, and the emoji must be in the array we provided.
     if (!player) {
         const filter = (reaction, user) => validReactions.includes(reaction.emoji.name) && user.id === author.id;
         return message.awaitReactions(filter, { max: 1, time: time}).then(collected => collected.first() && collected.first().emoji.name);
@@ -22,21 +19,20 @@ async function promptMessage(message, author, time, validReactions, player) {
         const filter = (reaction, user) => validReactions.includes(reaction.emoji.name) && user.id === author.id || user.id === player.id;
         return message.awaitReactions(filter, { max: 1, time: time}).then(collected => collected.first() && collected.first().emoji.name);
     }
-    // And ofcourse, await the reactions
 }
 
-function getResult(me, clientChosen) {
-    if ((me === "👊" && clientChosen === "✌️") || (me === "✋" && clientChosen === "👊") || (me === "✌️" && clientChosen === "✋"))
+function getResult(p1, p2) {
+    if ((p1 === "👊" && p2 === "✌️") || (p1 === "✋" && p2 === "👊") || (p1 === "✌️" && p2 === "✋"))
     return 1;
-    else if (me === clientChosen)
+    else if (p1 === p2)
     return 0;
-    else if ((me === "✌️" && clientChosen === "👊") || (me === "👊" && clientChosen === "✋") || (me === "✋" && clientChosen === "✌️"))
+    else if ((p1 === "✌️" && p2 === "👊") || (p1 === "👊" && p2 === "✋") || (p1 === "✋" && p2 === "✌️"))
     return 2;
     else
     return 84;
 }
 
-async function multy(bot, author, message, args, embed, embed1, embed2, chooseArr, mention, m, m1, m2) {
+async function multy(client, author, args, embed, embed1, embed2, chooseArr, mention, m, m1, m2) {
     await m.reactions.removeAll().catch(error => console.error('Failed to clear reactions: ', error));
     embed.setDescription(`Waiting for ${author} to play!`)
     embed1.setColor(colors.blue).setFooter('Make your choice:');
@@ -91,7 +87,7 @@ async function multy(bot, author, message, args, embed, embed1, embed2, chooseAr
             .setFooter("");
             embed2.setColor(colors.orange).setFooter('Waiting for the other player...')
             m.edit(embed); m2.edit(embed2);
-            await multy(bot, author, message, args, embed, embed1, embed2, chooseArr, mention, m, m1, m2);
+            await multy(client, author, args, embed, embed1, embed2, chooseArr, mention, m, m1, m2);
         }
         return;
     }
@@ -104,7 +100,7 @@ async function multy(bot, author, message, args, embed, embed1, embed2, chooseAr
     }
 }
 
-async function solo(bot, author, message, args, embed, chooseArr, m) {
+async function solo(client, author, args, embed, chooseArr, m) {
     const react = await promptMessage(m, author, 10, chooseArr);
     const bot_choice = chooseArr[Math.floor(Math.random() * chooseArr.length)];
     var result = getResult(react, bot_choice);
@@ -123,18 +119,18 @@ async function solo(bot, author, message, args, embed, chooseArr, m) {
         .setTitle('Rock Paper Scissor')
         .setFooter('Make your choice:');
         m.edit(embed);
-        solo(bot, author, message, args, embed, chooseArr, m)
+        solo(client, author, args, embed, chooseArr, m)
     }
 }
 
 module.exports = {
     name: "rps",
-    run: async (bot, message, args) => {
+    run: async (client, message, args) => {
         const author = message.mentions.users.each(user => user)
         .filter(user => !user.bot).first()
         const mention = message.mentions.users.each(user => user)
         .filter(user => !user.bot).last()
-        const mchan = bot.channels.cache.get(args[args.length - 1])
+        const mchan = client.channels.cache.get(args[args.length - 1])
         if (!mchan) {return}
         let gm = true;
         if (!mention || author === mention) {gm = false}
@@ -159,22 +155,22 @@ module.exports = {
             else if (react === "✔️") {embed.setColor(colors.orange).setFooter("").setDescription("")}
             let m1; let m2; var idp1; var idp2; var ch1; var ch2;
             var ch_name = '🗿📃✂️';
-            rps_category = bot.guilds.cache.get(message.guild.id).channels.cache.find(chan => chan.name === "Rock Paper Scissor" && chan.type === "category");
+            rps_category = client.guilds.cache.get(message.guild.id).channels.cache.find(chan => chan.name === "Rock Paper Scissor" && chan.type === "category");
             await message.guild.channels.create(`${ch_name}`, {type: 'text', parent: rps_category.id, permissionOverwrites: [{
                 id: author.id, allow: 66560}, {id: message.guild.roles.everyone, deny: 2146958847}]
             }).then(async chan => {chan.send(`${author}`).then(m => {m.delete()}); m1 = await chan.send(embed1); idp1 = chan.id})
             await message.guild.channels.create(`${ch_name}`, {type: 'text', parent: rps_category.id, permissionOverwrites: [{
                 id: mention.id, allow: 66560}, {id: message.guild.roles.everyone, deny: 2146958847}]
             }).then(async chan => {chan.send(`${mention}`).then(m => {m.delete()}); m2 = await chan.send(embed2); idp2 = chan.id})
-            await multy(bot, author, message, args, embed, embed1, embed2, chooseArr, mention, m, m1, m2);
-            ch1 = bot.channels.cache.get(idp1); ch2 = bot.channels.cache.get(idp2);
+            await multy(client, author, args, embed, embed1, embed2, chooseArr, mention, m, m1, m2);
+            ch1 = client.channels.cache.get(idp1); ch2 = client.channels.cache.get(idp2);
             wait(2500);
             if (ch1) {await ch1.delete()}
             if (ch2) {await ch2.delete()}
         } else {
             embed.addField('Player :', `${author}`)
             const m = await mchan.send(embed)
-            solo(bot, author, message, args, embed, chooseArr, m)
+            solo(client, author, args, embed, chooseArr, m)
         }
     }
 }
