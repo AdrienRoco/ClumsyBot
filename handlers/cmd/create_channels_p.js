@@ -23,13 +23,13 @@ async function write_file() {
 
 module.exports = {
     name: "create_channels_p",
-    run: async (bot, message, args) => {
+    run: async (client, guild, args) => {
         try {
             temp_cat_priv = [];
             temp_ch_priv = [];
             temp_tx_priv = [];
             await read_file()
-            const author = bot.users.cache.get(args[0])
+            const author = client.users.cache.get(args[0])
             const name = author.username;
             var embed = new MessageEmbed().setColor(colors.cyan).setTimestamp()
             .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))
@@ -39,20 +39,20 @@ module.exports = {
             .addField(`\`Channel owner:\``, `${author}`)
             .addField(`\`How can you invite a user?\``, `use /invite and choose a user or a role`)
 
-            await message.guild.channels.create(`🔒💢${name}'s channels💢🔒`, {type: 'category', position: 1, permissionOverwrites: [
-                {id: message.guild.roles.everyone, deny: 8589934591},
+            await guild.channels.create(`🔒💢${name}'s channels💢🔒`, {type: 'category', position: 1, permissionOverwrites: [
+                {id: guild.roles.everyone, deny: 8589934591},
                 {id: author.id, allow: 2184564288}
             ]})
             .then(async createdcat => {
-                await message.guild.channels.create(`🔒💬${name}'s💬🔒`, {type: 'text', parent: createdcat.id, nsfw: true})
+                await guild.channels.create(`🔒💬${name}'s💬🔒`, {type: 'text', parent: createdcat.id, nsfw: true})
                 .then(async createdTChannel => {
                     temp_tx_priv.push({id: createdTChannel.id});
                     try {await createdTChannel.send(embed).catch()} catch {}
                 })
-                await message.guild.channels.create(`🔒🔊${name}'s🔊🔒`, {type: 'voice', parent: createdcat.id})
+                await guild.channels.create(`🔒🔊${name}'s🔊🔒`, {type: 'voice', parent: createdcat.id})
                 .then(async createdVChannel => {
                     temp_ch_priv.push({id: createdVChannel.id});
-                    try {await message.guild.members.cache.get(author.id).voice.setChannel(createdVChannel.id)}
+                    try {await guild.members.cache.get(author.id).voice.setChannel(createdVChannel.id)}
                     catch {}
                 })
                 temp_cat_priv.push({ id: createdcat.id})

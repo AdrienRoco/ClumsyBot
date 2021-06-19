@@ -26,7 +26,8 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
     for (i in interaction.data.options) {args.push(interaction.data.options[i].value)}
     if (!interaction.data.options) {args = ['']}
 
-    const res = await client.slhcommands.get(name).callback({client, interaction, args})
+    const tmp = await client.slhcommands.get(name).callback({client, interaction, args})
+    const res = !tmp ? "Slash didn't return anything" : tmp
 
     let data = {content: res}
     if (typeof res === 'object') {data = await create_api_msg(interaction, res)}
@@ -83,19 +84,16 @@ client.on('ready', async () => {
 })
 
 client.on('message', message => {
-    const prefix    = 'c!';
     const clientid1 = `<@!${client.user.id}>`
     const clientid2 = `<@${client.user.id}>`
 
     if (message.author.id == client.user.id && message.content.startsWith("I deleted ")) {message.delete({timeout:3000}).catch()}
-    if (!message.content.startsWith(prefix)
-    &&  !message.content.startsWith(clientid1)
+    if (!message.content.startsWith(clientid1)
     &&  !message.content.startsWith(clientid2)) return;
 
     let args;
     if      (message.content.startsWith(clientid1)) {args = message.content.slice(clientid1.length).trim().split(/ +/g);}
     else if (message.content.startsWith(clientid2)) {args = message.content.slice(clientid2.length).trim().split(/ +/g);}
-    else {args = message.content.slice(prefix.length).trim().split(/ +/g);}
 
     let commandName = args.shift().toLowerCase();
     if (commandName.length === 0) {message.reply("Say something you mother f***").catch(); message.delete(); return;}
@@ -117,9 +115,7 @@ client.on("voiceStateUpdate", (oldMember, newMember) => {
     let oldV = oldMember.channel;
     let newV = newMember.channel;
     const log = client.guilds.cache.get(newMember.guild.id).channels.cache.find(chan => chan.name === "📜log📜" && chan.type === "text");
-    const botlog = client.guilds.cache.get(newMember.guild.id).channels.cache.find(chan => chan.name === "🚧bot_log🚧" && chan.type === "text");
     if (!log) {return}
-    if (!botlog) {return}
     var embed = new DiscordJS.MessageEmbed().setTitle("Clumsy Logs").setTimestamp()
     .setThumbnail(client.users.cache.get(newMember.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
 
@@ -130,7 +126,7 @@ client.on("voiceStateUpdate", (oldMember, newMember) => {
         } else if (newV == null) {
             embed.setColor(colors.red)
             .setDescription(`📤${newMember.member} **left\nchannel:** \`${oldV.name}\``)
-            try {client.botcommands.get('delete_channels').run(client, null, newMember.guild.id)} catch {}
+            try {client.botcommands.get('delete_channels').run(newMember.guild)} catch {}
         } else {
             embed.setColor(colors.yellow)
             .setDescription(`✈️${newMember.member} **moved\nfrom:** \`${oldV.name}\` **\nto:** \`${newV.name}\``)

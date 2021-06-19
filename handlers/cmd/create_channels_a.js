@@ -23,13 +23,13 @@ async function write_file() {
 
 module.exports = {
     name: "create_channels_a",
-    run: async (bot, message, args) => {
+    run: async (client, guild, args) => {
         try {
             temp_cat = [];
             temp_ch = [];
             temp_tx = [];
             await read_file()
-            const author = bot.users.cache.get(args[0])
+            const author = client.users.cache.get(args[0])
             var embed = new MessageEmbed().setColor(colors.cyan).setTimestamp()
             .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))
             .setTitle("Hi there!")
@@ -51,9 +51,9 @@ module.exports = {
             .setTitle('Skeld')
             .attachFiles('./img/amongus/skeld.png')
             .setImage('attachment://skeld.png');
-            await message.guild.channels.create(`👻Among Us👻`, {type: 'category', position: 1})
+            await guild.channels.create(`👻Among Us👻`, {type: 'category', position: 1})
             .then(async createdcat => {
-                await message.guild.channels.create(`👻Text👻`, {type: 'text', parent: createdcat.id, nsfw: true})
+                await guild.channels.create(`👻Text👻`, {type: 'text', parent: createdcat.id, nsfw: true})
                 .then(async createdTChannel => {
                     temp_tx.push({id: createdTChannel.id});
                     try {await createdTChannel.send(embed).catch()} catch {}
@@ -61,15 +61,15 @@ module.exports = {
                     try {await createdTChannel.send(polus).catch()} catch {}
                     try {await createdTChannel.send(skeld).catch()} catch {}
                 })
-                await message.guild.channels.create(`👻Voice👻`, {type: 'voice', parent: createdcat.id, userLimit: 10})
+                await guild.channels.create(`👻Voice👻`, {type: 'voice', parent: createdcat.id, userLimit: 10})
                 .then(async createdVChannel => {
                     temp_ch.push({id: createdVChannel.id});
-                    try {await message.guild.members.cache.get(author.id).voice.setChannel(createdVChannel.id)}
+                    try {await guild.members.cache.get(author.id).voice.setChannel(createdVChannel.id)}
                     catch {}
                 })
                 temp_cat.push({ id: createdcat.id})
             })
             await write_file()
-        } catch {return}
+        } catch (err) {console.log(err); return}
     }
 }
