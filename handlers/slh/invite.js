@@ -61,7 +61,7 @@ async function invite(userid, mention, guild, client) {
 }
 
 module.exports = {
-    test: true,
+    test: false,
     name: 'invite',
     description: 'Invite someone in you\'r private channel',
     args: [
