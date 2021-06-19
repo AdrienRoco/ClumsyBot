@@ -5,7 +5,6 @@ require('dotenv').config({ path: './config/.env' })
 const guild_test_ids = ['702461452564430948'];
 const client_test_Id = '698480016207642644';
 const client = new DiscordJS.Client();
-const prefix = 'c!';
 
 client.botcommands = new DiscordJS.Collection();
 client.admcommands = new DiscordJS.Collection();
@@ -71,7 +70,7 @@ client.on('ready', async () => {
         }
     } catch {console.log("Err in slash loading");}
 
-    console.log('Getting loaded list...');
+    console.log('Getting slash list...');
     let commands
     for (i in guild_test_ids) {
         commands = await get_app(guild_test_ids[i]).commands.get().catch(() => {console.log("no commands")})
@@ -80,10 +79,11 @@ client.on('ready', async () => {
     for (i in commands) {console.log("Global cmd's", i, [commands[i].id, commands[i].name])}
 
     client.user.setActivity('you👀', { type: 'WATCHING' })
-    console.log("client Ready\n")
+    console.log(`\n${client.user.username} Ready\n`)
 })
 
 client.on('message', message => {
+    const prefix    = 'c!';
     const clientid1 = `<@!${client.user.id}>`
     const clientid2 = `<@${client.user.id}>`
 
