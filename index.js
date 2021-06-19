@@ -130,8 +130,7 @@ client.on("voiceStateUpdate", (oldMember, newMember) => {
         } else if (newV == null) {
             embed.setColor(colors.red)
             .setDescription(`📤${newMember.member} **left\nchannel:** \`${oldV.name}\``)
-            botlog.send(`${client.user} delete_channels ${newMember.guild.id}`)
-            // try {client.botcommands.get('delete_channels').run(client, undefined, newMember.guild.id)} catch (err) {console.log(err);}
+            try {client.botcommands.get('delete_channels').run(client, null, newMember.guild.id)} catch {}
         } else {
             embed.setColor(colors.yellow)
             .setDescription(`✈️${newMember.member} **moved\nfrom:** \`${oldV.name}\` **\nto:** \`${newV.name}\``)

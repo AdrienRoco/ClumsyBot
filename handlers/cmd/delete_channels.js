@@ -57,14 +57,14 @@ module.exports = {
             temp_tx_priv = [];
             await read_file()
             await read_priv_file()
-            const guild = client.guilds.cache.get(args[0])
+            const guild = client.guilds.cache.get(args)
             if (temp_cat.length != temp_ch.length && temp_cat.length != temp_tx.length) {console.log("Err in temp conf file"); return;}
             if (temp_cat_priv.length != temp_ch_priv.length && temp_cat_priv.length != temp_tx_priv.length) {console.log("Err in priv conf file"); return;}
             for (let i = temp_cat.length - 1; i >= 0; i--) {
                 const c_ch = await guild.channels.cache.get(temp_cat[i].id);
                 const t_ch = await guild.channels.cache.get(temp_tx[i].id);
                 const v_ch = await guild.channels.cache.get(temp_ch[i].id);
-                if (v_ch && v_ch.members.size <= 0) {wait(2000)}
+                if (v_ch && v_ch.members.size <= 0) {wait(3000)}
                 if (v_ch && v_ch.members.size <= 0) {
                     await v_ch.delete().catch()
                     await t_ch.delete().catch()
@@ -74,13 +74,13 @@ module.exports = {
                     temp_cat.splice(i, 1)
                 }
                 await write_file()
-                wait(500)
+                wait(1000)
             }
             for (let i = temp_cat_priv.length - 1; i >= 0; i--) {
                 const c_ch_p = await guild.channels.cache.get(temp_cat_priv[i].id);
                 const t_ch_p = await guild.channels.cache.get(temp_tx_priv[i].id);
                 const v_ch_p = await guild.channels.cache.get(temp_ch_priv[i].id);
-                if (v_ch_p && v_ch_p.members.size <= 0) {wait(2000)}
+                if (v_ch_p && v_ch_p.members.size <= 0) {wait(3000)}
                 if (v_ch_p && v_ch_p.members.size <= 0) {
                     await v_ch_p.delete().catch()
                     await t_ch_p.delete().catch()
@@ -90,7 +90,7 @@ module.exports = {
                     temp_cat_priv.splice(i, 1)
                 }
                 await write_priv_file()
-                wait(500)
+                wait(1000)
             }
         } catch {return}
     }
