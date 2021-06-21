@@ -20,19 +20,21 @@ const get_app = (guildId => {
 })
 
 client.ws.on('INTERACTION_CREATE', async (interaction) => {
-    const name = interaction.data.name
+    try {
+        const name = interaction.data.name
 
-    let args = []
-    for (i in interaction.data.options) {args.push(interaction.data.options[i].value)}
-    if (!interaction.data.options) {args = ['']}
+        let args = []
+        for (i in interaction.data.options) {args.push(interaction.data.options[i].value)}
+        if (!interaction.data.options) {args = ['']}
 
-    const tmp = await client.slhcommands.get(name).callback({client, interaction, args})
-    const res = !tmp ? "Slash didn't return anything" : tmp
+        const tmp = await client.slhcommands.get(name).callback({client, interaction, args})
+        const res = !tmp ? "Slash didn't return anything" : tmp
 
-    let data = {content: res}
-    if (typeof res === 'object') {data = await create_api_msg(interaction, res)}
+        let data = {content: res}
+        if (typeof res === 'object') {data = await create_api_msg(interaction, res)}
 
-    client.api.interactions(interaction.id, interaction.token).callback.post({data: {type: 4, data}})
+        client.api.interactions(interaction.id, interaction.token).callback.post({data: {type: 4, data}})
+    } catch {return}
 })
 
 const create_api_msg = async (interaction, embed) => {
@@ -103,11 +105,11 @@ client.on('message', message => {
 
     if (message.author.id != client.user.id) {
         if (!admcommand) {message.reply(`**${commandName}** is not a command`).catch(); message.delete(); return;}
-        if (admcommand) try {admcommand.run(client, message, args)} catch {}
+        if (admcommand) try {admcommand.run(client, message, args)} catch {return}
         message.delete().catch();
     } else {
         if (!botcommand) {message.channel.send(`**${commandName}** is not a command`).catch(); message.delete(); return;}
-        if (botcommand) try {botcommand.run(client, message, args)} catch {}
+        if (botcommand) try {botcommand.run(client, message, args)} catch {return}
     }
 })
 
