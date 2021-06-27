@@ -21,18 +21,17 @@ async function write_file() {
     fs.writeFileSync('./config/temp_ids.json', data, (err) => {if (err) throw err;});
 }
 
-async function create_channel(client, guild, args) {
+async function create_channel(client, guild) {
     temp_cat = [];
     temp_ch = [];
     temp_tx = [];
     await read_file()
-    const author = client.users.cache.get(args[0])
     var embed = new MessageEmbed().setColor(colors.cyan).setTimestamp()
-    .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))
+    .setThumbnail(client.user.avatarURL({ dynamic: true, format: 'png', size: 128 }))
     .setTitle("Hi there!")
     .setFooter("Created")
     .setDescription("There is your own channel!\n`Rules?`\n**Nope!** this channel is temporary.\nEverything you say here will be deleted\nwhen you all leave the channel!")
-    .addField(`\`Channel owner:\``, `${author}`)
+    .addField(`\`Channel owner:\``, `${client.user}`)
 
     await guild.channels.create(`💢server under💢`, {type: 'category', position: 1})
     .then(async createdcat => {
@@ -44,12 +43,14 @@ async function create_channel(client, guild, args) {
         await guild.channels.create(`🔊use this🔊`, {type: 'voice', parent: createdcat.id})
         .then(async createdVChannel => {
             temp_ch.push({id: createdVChannel.id});
-            try {await guild.members.cache.get(author.id).voice.setChannel(createdVChannel.id)}
-            catch {}
         })
         temp_cat.push({ id: createdcat.id})
     })
     await write_file()
+}
+
+function isInt(value) {
+    return !isNaN(value) && (function(x) { return (x | 0) === x; })(parseFloat(value))
 }
 
 module.exports = {
@@ -58,10 +59,13 @@ module.exports = {
         try {
             if (!message.member.hasPermission("ADMINISTRATOR")) {return message.reply("You can't do that....").then(m => m.delete({timeout:3000}).catch())}
             const guild = message.guild
-            const arg = [message.author.id]
-            await create_channel(client, guild, arg)
-            await create_channel(client, guild, arg)
-            await create_channel(client, guild, arg)
+            let num
+            if (!args[0] || args[0] == '0') {num = 3}
+            else if (!isInt(args)) {num = 3}
+            else num = args[0]
+            for (i = 0; i < num; i++) {
+                await create_channel(client, guild)
+            }
         } catch {}
         process.exit(42)
     }

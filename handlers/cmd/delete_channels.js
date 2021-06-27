@@ -59,36 +59,36 @@ module.exports = {
             await read_priv_file()
             if (temp_cat.length != temp_ch.length && temp_cat.length != temp_tx.length) {console.log("Err in temp conf file"); return;}
             if (temp_cat_priv.length != temp_ch_priv.length && temp_cat_priv.length != temp_tx_priv.length) {console.log("Err in priv conf file"); return;}
-            for (let i = temp_cat.length - 1; i >= 0; i--) {
-                const c_ch = await guild.channels.cache.get(temp_cat[i].id);
-                const t_ch = await guild.channels.cache.get(temp_tx[i].id);
-                const v_ch = await guild.channels.cache.get(temp_ch[i].id);
-                if (v_ch && v_ch.members.size <= 0) {
-                    await v_ch.delete().catch()
-                    await t_ch.delete().catch()
-                    await c_ch.delete().catch()
-                    temp_ch.splice(i, 1)
-                    temp_tx.splice(i, 1)
-                    temp_cat.splice(i, 1)
-                }
-                await write_file()
-                wait(2500)
-            }
             for (let i = temp_cat_priv.length - 1; i >= 0; i--) {
                 const c_ch_p = await guild.channels.cache.get(temp_cat_priv[i].id);
                 const t_ch_p = await guild.channels.cache.get(temp_tx_priv[i].id);
                 const v_ch_p = await guild.channels.cache.get(temp_ch_priv[i].id);
                 if (v_ch_p && v_ch_p.members.size <= 0) {
-                    await v_ch_p.delete().catch()
-                    await t_ch_p.delete().catch()
-                    await c_ch_p.delete().catch()
+                    try {await v_ch_p.delete().catch()} catch {}
+                    try {await t_ch_p.delete().catch()} catch {}
+                    try {await c_ch_p.delete().catch()} catch {}
                     temp_ch_priv.splice(i, 1)
                     temp_tx_priv.splice(i, 1)
                     temp_cat_priv.splice(i, 1)
+                    await write_priv_file()
                 }
-                await write_priv_file()
-                wait(2500)
+                wait(3000)
             }
-        } catch {return}
+            for (let i = temp_cat.length - 1; i >= 0; i--) {
+                const c_ch = await guild.channels.cache.get(temp_cat[i].id);
+                const t_ch = await guild.channels.cache.get(temp_tx[i].id);
+                const v_ch = await guild.channels.cache.get(temp_ch[i].id);
+                if (v_ch && v_ch.members.size <= 0) {
+                    try {await v_ch.delete().catch()} catch {}
+                    try {await t_ch.delete().catch()} catch {}
+                    try {await c_ch.delete().catch()} catch {}
+                    temp_ch.splice(i, 1)
+                    temp_tx.splice(i, 1)
+                    temp_cat.splice(i, 1)
+                    await write_file()
+                }
+                wait(3000)
+            }
+        } catch (err) {console.log(err); return}
     }
 }
