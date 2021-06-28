@@ -128,10 +128,13 @@ client.on("voiceStateUpdate", (oldMember, newMember) => {
         } else if (newV == null) {
             embed.setColor(colors.red)
             .setDescription(`📤${newMember.member} **left\nchannel:** \`${oldV.name}\``)
-            try {client.botcommands.get('delete_channels').run(newMember.guild)} catch {}
+            if (oldV.members.size == 0)
+                try {client.botcommands.get('delete_channels').run(newMember.guild)} catch {}
         } else {
             embed.setColor(colors.yellow)
             .setDescription(`✈️${newMember.member} **moved\nfrom:** \`${oldV.name}\` **\nto:** \`${newV.name}\``)
+            if (oldV.members.size == 0)
+                try {client.botcommands.get('delete_channels').run(newMember.guild)} catch {}
         }
         log.send(embed);
     }

@@ -2,7 +2,7 @@ const colors = require("../../colors.json");
 
 module.exports = {
     name: "aaa",
-    run: (bot, message, args) => {
+    run: (client, message, args) => {
         return;
     }
 }
