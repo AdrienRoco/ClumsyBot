@@ -5,9 +5,10 @@ const random_search = require("random-puppy");
 
 async function meme() {
     try {
-        const subReddits = ["funny", "dankmeme", "meme", "dank_meme", "memes", "cursedcomments", "AbruptChaos", "instant_regret", "instantkarma"];
+        const subReddits = ["funny", "meme", "memes", "cursedcomments", "AbruptChaos", "instant_regret", "instantkarma"];
         const random = subReddits[Math.floor(Math.random() * subReddits.length)];
-        const img = await random_search(random);
+        const reddit = await fetch(`https://www.reddit.com/r/${random}/top/.json?sort=top&t=day`).then(res => res.json())
+        const img = reddit.data.children[Math.floor(Math.random() * reddit.data.children.length)].data.url;
         const embed = new discord.MessageEmbed()
         .setColor("RANDOM")
         .setImage(img)
