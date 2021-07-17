@@ -2,6 +2,7 @@ const colors = require("../../colors.json");
 const types = require("../../arg_type.json");
 const discord = require("discord.js");
 const random_search = require("random-puppy");
+const fetch = require("node-fetch");
 
 async function meme() {
     try {
