@@ -6,17 +6,17 @@ const fetch = require("node-fetch");
 
 async function meme() {
     try {
-        const subReddits = ["funny", "meme", "memes", "cursedcomments", "AbruptChaos", "instant_regret", "instantkarma"];
+        const subReddits = ["meme", "cursedcomments", "instant_regret", "instantkarma"];
         const random = subReddits[Math.floor(Math.random() * subReddits.length)];
         const reddit = await fetch(`https://www.reddit.com/r/${random}/top/.json?sort=top&t=day`).then(res => res.json())
         const img = reddit.data.children[Math.floor(Math.random() * reddit.data.children.length)].data.url;
-        // const embed = new discord.MessageEmbed()
-        // .setColor("RANDOM")
-        // .setImage(img)
-        // .setTitle(`From reddit.com/r/${random}`)
-        // .setURL(`https://reddit.com/r/${random}`);
-        // if (img.endsWith("mp4") || img.endsWith("gif")) return img
-        return img // embed
+        const embed = new discord.MessageEmbed()
+        .setColor("RANDOM")
+        .setImage(img)
+        .setTitle(`From reddit.com/r/${random}`)
+        .setURL(`https://reddit.com/r/${random}`);
+        if (img.endsWith("mp4") || img.endsWith("gif")) return img
+        return embed
     } catch {return "Try again"}
 }
 
