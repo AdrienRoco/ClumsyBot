@@ -4,6 +4,7 @@
   "description": "My Slash Bot",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "nodemon"
   },
   "repository": {
