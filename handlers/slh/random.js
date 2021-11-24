@@ -6,7 +6,7 @@ const fetch = require("node-fetch");
 
 async function meme() {
     try {
-        const subReddits = ["meme", "cursedcomments", "instant_regret", "instantkarma"];
+        const subReddits = ["meme", "cursedcomments"];
         const random = subReddits[Math.floor(Math.random() * subReddits.length)];
         const reddit = await fetch(`https://www.reddit.com/r/${random}/top/.json?sort=top&t=day`).then(res => res.json())
         const img = reddit.data.children[Math.floor(Math.random() * reddit.data.children.length)].data.url;
