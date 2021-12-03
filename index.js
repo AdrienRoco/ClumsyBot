@@ -113,6 +113,20 @@ client.on('message', message => {
     }
 })
 
+client.on("voiceStateUpdate", (oldMember, newMember) => {
+    let oldV = oldMember.channel;
+    let newV = newMember.channel;
+    if (oldV != newV) {
+        if (newV == null) {
+            if (oldV.members.size == 0)
+                try {client.botcommands.get('delete_channels').run(newMember.guild)} catch {}
+        } else if (oldV != null) {
+            if (oldV.members.size == 0)
+                try {client.botcommands.get('delete_channels').run(newMember.guild)} catch {}
+        }
+    }
+});
+
 client.on('guildMemberAdd', member =>{
     const main = client.guilds.cache.get(member.guild.id).channels.cache.find(chan => chan.name === "🌈💩fuck💩🌈" && chan.type === "text");
     if (!main) {return}
