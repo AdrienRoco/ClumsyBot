@@ -20,10 +20,6 @@ module.exports = {
                     name: 'private',
                     value: 'priv'
                 },
-                {
-                    name: 'amongus',
-                    value: 'amongus'
-                },
             ],
         },
     ],
@@ -35,9 +31,6 @@ module.exports = {
                     return `Ok, let's go`
                 case 'priv':
                     try {client.botcommands.get('create_channels_p').run(client, client.guilds.cache.get(interaction.guild_id), [interaction.member.user.id])} catch {}
-                    return `Ok, let's go`
-                case 'amongus':
-                    try {client.botcommands.get('create_channels_a').run(client, client.guilds.cache.get(interaction.guild_id), [interaction.member.user.id])} catch {}
                     return `Ok, let's go`
                 default: return "Oups, I can't do that"
             }

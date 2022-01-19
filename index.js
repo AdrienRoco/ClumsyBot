@@ -128,7 +128,7 @@ client.on("voiceStateUpdate", (oldMember, newMember) => {
 });
 
 client.on('guildMemberAdd', member =>{
-    const main = client.guilds.cache.get(member.guild.id).channels.cache.find(chan => chan.name === "🌈💩fuck💩🌈" && chan.type === "text");
+    const main = client.guilds.cache.get(member.guild.id).channels.cache.get(member.guild.systemChannelID);
     if (!main) {return}
     const wel = new DiscordJS.MessageEmbed().setTitle("Welcome").setColor(colors.green).setTimestamp()
     .setThumbnail(client.users.cache.get(member.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
@@ -139,14 +139,14 @@ client.on('guildMemberAdd', member =>{
             member.roles.add(client.guilds.cache.get(member.guild.id).roles.cache.find(r => r.name === "⁣⁣         Games         ⁣⁣⁣⁣").id)
         } catch {}
         member.createDM().then(channel => {
-            channel.send(`Bienvenu ${member} dans mon serveur **${member.guild}** !!😄\nIci tu es le bienvenu avec tous tes amis.😜\nTu peux inviter qui tu veux, quand tu veux!🤗\nSi tu veux faire un vocal, utilise les commandes / et tu auras un channel rien que pour toi et tes potes!🤩\nDes questions ou des suggestions?? je suis la!!👍`);
+            channel.send(`Bienvenu ${member} dans mon serveur **${member.guild}** !!😄\nIci tu es le bienvenu avec tous tes amis.😜\nTu peux inviter qui tu veux, quand tu veux!🤗\nSi tu veux faire un vocal, utilise les commandes / et tu auras un channel rien que pour toi et tes potes!👍`);
         })
     }
     main.send(wel);
 })
 
 client.on('guildMemberRemove', member =>{
-    const main = client.guilds.cache.get(member.guild.id).channels.cache.find(chan => chan.name === "🌈💩fuck💩🌈" && chan.type === "text");
+    const main = client.guilds.cache.get(member.guild.id).channels.cache.get(member.guild.systemChannelID);
     if (!main) {return}
     const embed = new DiscordJS.MessageEmbed().setTitle("Goodbye").setColor(colors.red).setTimestamp()
     .setThumbnail(client.users.cache.get(member.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
