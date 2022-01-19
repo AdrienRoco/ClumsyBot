@@ -10,7 +10,7 @@ module.exports = {
     name: "delete",
     run: async (client, message, args) => {
         const guildIds = ['702461452564430948']
-        if (!message.member.hasPermission("ADMINISTRATOR")) {return message.reply("You can't delete cdm's....").then(m => m.delete({timeout:3000}).catch())}
+        if (message.member.id != '168474820793729024') {return message.reply("You can't delete cdm's....").then(m => m.delete({timeout:3000}).catch())}
 
         for (i in args) {
             console.log('Cleaning selected cmd...');
