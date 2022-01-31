@@ -1,15 +1,16 @@
 const colors = require("../../colors.json");
 const types = require("../../arg_type.json");
 const discord = require("discord.js");
-const random_search = require("random-puppy");
 const fetch = require("node-fetch");
 
-async function meme() {
+async function sub(sub_list) {
+    var random;
     try {
-        const subReddits = ["meme", "cursedcomments"];
-        const random = subReddits[Math.floor(Math.random() * subReddits.length)];
-        const reddit = await fetch(`https://www.reddit.com/r/${random}/top/.json?sort=top&t=day`).then(res => res.json())
+        if (sub_list.length != 1) random = sub_list[Math.floor(Math.random() * sub_list.length)];
+        else random = sub_list[0];
+        const reddit = await fetch(`https://www.reddit.com/r/${random}/top/.json?sort=top&t=day`).then(res => res.json());
         const img = reddit.data.children[Math.floor(Math.random() * reddit.data.children.length)].data.url;
+        if (!img) sub(sub_list);
         const embed = new discord.MessageEmbed()
         .setColor("RANDOM")
         .setImage(img)
@@ -17,24 +18,6 @@ async function meme() {
         .setURL(`https://reddit.com/r/${random}`);
         if (img.endsWith("mp4") || img.endsWith("gif")) return img
         return embed
-    } catch {return "Try again"}
-}
-
-async function dog() {
-    try {
-        const subReddits = ["dog"];
-        const random = subReddits[Math.floor(Math.random() * subReddits.length)];
-        const img = await random_search(random);
-        return img
-    } catch {return "Try again"}
-}
-
-async function cat() {
-    try {
-        const subReddits = ["cat"];
-        const random = subReddits[Math.floor(Math.random() * subReddits.length)];
-        const img = await random_search(random);
-        return img
     } catch {return "Try again"}
 }
 
@@ -61,15 +44,20 @@ module.exports = {
                     name: 'cat',
                     value: 'cat'
                 },
+                {
+                    name: 'rat',
+                    value: 'rat'
+                }
             ],
         },
     ],
     callback: async ({ args }) => {
         try {
             switch (args[0]) {
-                case 'meme': return await meme()
-                case 'dog': return await dog()
-                case 'cat': return await cat()
+                case 'meme': return await sub(["meme", "cursedcomments"])
+                case 'dog': return await sub(["dog", "Cutedogsreddit", "Uglydogs"])
+                case 'cat': return await sub(["cat"])
+                case 'rat': return await sub(["rats"])
                 default: return "Oups, I don't know about that"
             }
         } catch {return "Oups, I can't do that"}
