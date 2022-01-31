@@ -5,12 +5,16 @@ const fetch = require("node-fetch");
 
 async function sub(sub_list) {
     var random;
+    const extention_list = [".jpg", ".jpeg", ".png", ".gif", ".mp4"];
     try {
         if (sub_list.length != 1) random = sub_list[Math.floor(Math.random() * sub_list.length)];
         else random = sub_list[0];
         const reddit = await fetch(`https://www.reddit.com/r/${random}/top/.json?sort=top&t=day`).then(res => res.json());
         const img = reddit.data.children[Math.floor(Math.random() * reddit.data.children.length)].data.url;
-        if (!img) sub(sub_list);
+        for (var i = 0; i < extention_list.length; i++) {
+            if (img.endsWith(extention_list[i])) break;
+            if (i == extention_list.length - 1) sub(sub_list);
+        }
         const embed = new discord.MessageEmbed()
         .setColor("RANDOM")
         .setImage(img)
