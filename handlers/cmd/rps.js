@@ -125,16 +125,15 @@ async function solo(author, embed, chooseArr, m) {
 
 module.exports = {
     name: "rps",
-    run: async (client, message, args) => {
-        const author = client.users.cache.get(args[0]);
-        const mention = message.mentions.users.each(user => user)
-        .filter(user => !user.bot).last()
-        rps_category = client.guilds.cache.get(message.guild.id).channels.cache.find(chan => chan.name === "Rock Paper Scissor" && chan.type === "category");
+    run: async (client, guild, args) => {
+        const author = client.users.cache.get(args[1]);
+        const mention = client.users.cache.get(args[2]);
+        rps_category = guild.channels.cache.find(chan => chan.name === "Rock Paper Scissor" && chan.type === "category");
         if (!rps_category) return;
-        const mchan = client.channels.cache.get(args[args.length - 1])
+        const mchan = client.channels.cache.get(args[0]);
         if (!mchan) {return}
         let multiplayer = true;
-        if (!mention || author === mention) {multiplayer = false}
+        if (!mention || author === mention || mention.bot) {multiplayer = false}
         const chooseArr = ["👊", "✋", "✌️"];
         var embed = new MessageEmbed()
         .setColor(colors.blue)
@@ -156,11 +155,11 @@ module.exports = {
             else if (react === "✔️") {embed.setColor(colors.orange).setFooter("").setDescription("")}
             let m1; let m2; var idp1; var idp2; var ch1; var ch2;
             var ch_name = '🗿📃✂️';
-            await message.guild.channels.create(`${ch_name}`, {type: 'text', parent: rps_category.id, permissionOverwrites: [{
-                id: author.id, allow: 66560}, {id: message.guild.roles.everyone, deny: 2146958847}]
+            await guild.channels.create(`${ch_name}`, {type: 'text', parent: rps_category.id, permissionOverwrites: [{
+                id: author.id, allow: 66560}, {id: guild.roles.everyone, deny: 2146958847}]
             }).then(async chan => {chan.send(`${author}`).then(m => {m.delete()}); m1 = await chan.send(embed1); idp1 = chan.id})
-            await message.guild.channels.create(`${ch_name}`, {type: 'text', parent: rps_category.id, permissionOverwrites: [{
-                id: mention.id, allow: 66560}, {id: message.guild.roles.everyone, deny: 2146958847}]
+            await guild.channels.create(`${ch_name}`, {type: 'text', parent: rps_category.id, permissionOverwrites: [{
+                id: mention.id, allow: 66560}, {id: guild.roles.everyone, deny: 2146958847}]
             }).then(async chan => {chan.send(`${mention}`).then(m => {m.delete()}); m2 = await chan.send(embed2); idp2 = chan.id})
             await multy(author, embed, embed1, embed2, chooseArr, mention, m, m1, m2);
             ch1 = client.channels.cache.get(idp1); ch2 = client.channels.cache.get(idp2);

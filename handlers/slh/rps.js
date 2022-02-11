@@ -15,10 +15,7 @@ module.exports = {
     ],
     callback: ({client, interaction, args}) => {
         try {
-            const log = client.guilds.cache.get(interaction.guild_id).channels.cache.find(chan => chan.name === "🚧bot_log🚧" && chan.type === "text");
-            if (!log) {return}
-            log.send(`${client.user} rps <@${interaction.member.user.id}> <@${args[0]}> ${interaction.channel_id}`)
-            // try {client.botcommands.get('rps').run(client, client.guilds.cache.get(interaction.guild_id), [interaction.member.user.id, args[0]])} catch {}
+            try {client.botcommands.get('rps').run(client, client.guilds.cache.get(interaction.guild_id), [interaction.channel_id, interaction.member.user.id, args[0]])} catch {}
             return `Ok I'm lunching the game`
         } catch {return "Oups, I can't do that"}
     }
