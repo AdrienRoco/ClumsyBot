@@ -31,6 +31,7 @@ module.exports = {
             await read_file()
             const author = client.users.cache.get(args[0])
             const name = author.username;
+            var pos = 1
             var embed = new MessageEmbed().setColor(colors.cyan).setTimestamp()
             .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))
             .setTitle("Hi there!")
@@ -38,7 +39,9 @@ module.exports = {
             .setDescription("There is your own channel!\n`Rules?`\n**Nope!** this channel is temporary.\nEverything you say here will be deleted\nwhen you all leave the channel!")
             .addField(`\`Channel owner:\``, `${author}`)
 
-            await guild.channels.create(`💢${name}'s channels💢`, {type: 'category', position: 1})
+            if (guild.id == "629024878812725278") pos = 6;
+
+            await guild.channels.create(`💢${name}'s channels💢`, {type: 'category', position: pos})
             .then(async createdcat => {
                 await guild.channels.create(`💬${name}'s💬`, {type: 'text', parent: createdcat.id, nsfw: true})
                 .then(async createdTChannel => {

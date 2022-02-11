@@ -32,7 +32,7 @@ function getResult(p1, p2) {
     return 84;
 }
 
-async function multy(client, author, args, embed, embed1, embed2, chooseArr, mention, m, m1, m2) {
+async function multy(author, embed, embed1, embed2, chooseArr, mention, m, m1, m2) {
     await m.reactions.removeAll().catch(error => console.error('Failed to clear reactions: ', error));
     embed.setDescription(`Waiting for ${author} to play!`)
     embed1.setColor(colors.blue).setFooter('Make your choice:');
@@ -87,7 +87,7 @@ async function multy(client, author, args, embed, embed1, embed2, chooseArr, men
             .setFooter("");
             embed2.setColor(colors.orange).setFooter('Waiting for the other player...')
             m.edit(embed); m2.edit(embed2);
-            await multy(client, author, args, embed, embed1, embed2, chooseArr, mention, m, m1, m2);
+            await multy(author, embed, embed1, embed2, chooseArr, mention, m, m1, m2);
         }
         return;
     }
@@ -100,7 +100,7 @@ async function multy(client, author, args, embed, embed1, embed2, chooseArr, men
     }
 }
 
-async function solo(client, author, args, embed, chooseArr, m) {
+async function solo(author, embed, chooseArr, m) {
     const react = await promptMessage(m, author, 10, chooseArr);
     const bot_choice = chooseArr[Math.floor(Math.random() * chooseArr.length)];
     var result = getResult(react, bot_choice);
@@ -119,27 +119,28 @@ async function solo(client, author, args, embed, chooseArr, m) {
         .setTitle('Rock Paper Scissor')
         .setFooter('Make your choice:');
         m.edit(embed);
-        solo(client, author, args, embed, chooseArr, m)
+        solo(author, embed, chooseArr, m)
     }
 }
 
 module.exports = {
     name: "rps",
     run: async (client, message, args) => {
-        const author = message.mentions.users.each(user => user)
-        .filter(user => !user.bot).first()
+        const author = client.users.cache.get(args[0]);
         const mention = message.mentions.users.each(user => user)
         .filter(user => !user.bot).last()
+        rps_category = client.guilds.cache.get(message.guild.id).channels.cache.find(chan => chan.name === "Rock Paper Scissor" && chan.type === "category");
+        if (!rps_category) return;
         const mchan = client.channels.cache.get(args[args.length - 1])
         if (!mchan) {return}
-        let gm = true;
-        if (!mention || author === mention) {gm = false}
+        let multiplayer = true;
+        if (!mention || author === mention) {multiplayer = false}
         const chooseArr = ["👊", "✋", "✌️"];
         var embed = new MessageEmbed()
         .setColor(colors.blue)
         .setTitle('Rock Paper Scissor')
         .setFooter('Make your choice:');
-        if (gm) {
+        if (multiplayer) {
             var embed1 = new MessageEmbed().setColor(colors.blue).setTitle('Rock Paper Scissor').setFooter('Make your choice:').addField('Players :', `${author} and ${mention}`);
             var embed2 = new MessageEmbed().setColor(colors.orange).setTitle('Rock Paper Scissor').setFooter('Waiting for the other player...').addField('Players :', `${author} and ${mention}`);
             embed.addField('Players :', `${author} and ${mention}`).addField(`Do you accept the challenge?`, `${mention}`);
@@ -155,14 +156,13 @@ module.exports = {
             else if (react === "✔️") {embed.setColor(colors.orange).setFooter("").setDescription("")}
             let m1; let m2; var idp1; var idp2; var ch1; var ch2;
             var ch_name = '🗿📃✂️';
-            rps_category = client.guilds.cache.get(message.guild.id).channels.cache.find(chan => chan.name === "Rock Paper Scissor" && chan.type === "category");
             await message.guild.channels.create(`${ch_name}`, {type: 'text', parent: rps_category.id, permissionOverwrites: [{
                 id: author.id, allow: 66560}, {id: message.guild.roles.everyone, deny: 2146958847}]
             }).then(async chan => {chan.send(`${author}`).then(m => {m.delete()}); m1 = await chan.send(embed1); idp1 = chan.id})
             await message.guild.channels.create(`${ch_name}`, {type: 'text', parent: rps_category.id, permissionOverwrites: [{
                 id: mention.id, allow: 66560}, {id: message.guild.roles.everyone, deny: 2146958847}]
             }).then(async chan => {chan.send(`${mention}`).then(m => {m.delete()}); m2 = await chan.send(embed2); idp2 = chan.id})
-            await multy(client, author, args, embed, embed1, embed2, chooseArr, mention, m, m1, m2);
+            await multy(author, embed, embed1, embed2, chooseArr, mention, m, m1, m2);
             ch1 = client.channels.cache.get(idp1); ch2 = client.channels.cache.get(idp2);
             wait(2500);
             if (ch1) {await ch1.delete()}
@@ -170,7 +170,7 @@ module.exports = {
         } else {
             embed.addField('Player :', `${author}`)
             const m = await mchan.send(embed)
-            solo(client, author, args, embed, chooseArr, m)
+            solo(author, embed, chooseArr, m)
         }
     }
 }

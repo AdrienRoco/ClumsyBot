@@ -32,7 +32,7 @@ async function sub(sub_list, arg) {
 }
 
 module.exports = {
-    test: true,
+    test: false,
     name: 'random',
     description: 'Send random shit',
     args: [

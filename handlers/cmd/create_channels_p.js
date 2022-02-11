@@ -31,6 +31,7 @@ module.exports = {
             await read_file()
             const author = client.users.cache.get(args[0])
             const name = author.username;
+            var pos = 1
             var embed = new MessageEmbed().setColor(colors.cyan).setTimestamp()
             .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))
             .setTitle("Hi there!")
@@ -39,7 +40,9 @@ module.exports = {
             .addField(`\`Channel owner:\``, `${author}`)
             .addField(`\`How can you invite a user?\``, `use /invite and choose a user or a role`)
 
-            await guild.channels.create(`🔒💢${name}'s channels💢🔒`, {type: 'category', position: 1, permissionOverwrites: [
+            if (guild.id == "629024878812725278") pos = 6;
+
+            await guild.channels.create(`🔒💢${name}'s channels💢🔒`, {type: 'category', position: pos, permissionOverwrites: [
                 {id: guild.roles.everyone, deny: 8589934591},
                 {id: author.id, allow: 2184564288}
             ]})
