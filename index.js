@@ -7,7 +7,6 @@ const client_test_Id = '698480016207642644';
 const client = new DiscordJS.Client();
 
 client.botcommands = new DiscordJS.Collection();
-client.admcommands = new DiscordJS.Collection();
 client.slhcommands = new DiscordJS.Collection();
 ["command"].forEach(handler => {
     require(`./handlers/${handler}`)(client);
@@ -86,31 +85,24 @@ client.on('ready', async () => {
 })
 
 client.on('message', message => {
-    const clientid1 = `<@!${client.user.id}>`
-    const clientid2 = `<@${client.user.id}>`
+    const clientid1 = `<@${client.user.id}>`
+    const clientid2 = `<@!${client.user.id}>`
 
     if (message.author.id == client.user.id && message.content.startsWith("I deleted ")) {message.delete({timeout:3000}).catch()}
-    if (!message.content.startsWith(clientid1)
-    &&  !message.content.startsWith(clientid2)) return;
+    if (!message.content.startsWith(clientid1) && !message.content.startsWith(clientid2)) return;
+    if (message.author.bot) return;
 
     let args;
     if      (message.content.startsWith(clientid1)) {args = message.content.slice(clientid1.length).trim().split(/ +/g);}
     else if (message.content.startsWith(clientid2)) {args = message.content.slice(clientid2.length).trim().split(/ +/g);}
 
     let commandName = args.shift().toLowerCase();
-    if (commandName.length === 0) {message.reply("Say something you mother f***").catch(); message.delete(); return;}
+    if (!commandName) {message.reply("What the f*** do you want???").catch(); message.delete(); return;}
 
     const botcommand = client.botcommands.get(commandName)
-    const admcommand = client.admcommands.get(commandName)
 
-    if (message.author.id != client.user.id) {
-        if (!admcommand) {message.reply(`**${commandName}** is not a command`).catch(); message.delete(); return;}
-        if (admcommand) try {admcommand.run(client, message, args)} catch {return}
-        message.delete().catch();
-    } else {
-        if (!botcommand) {message.channel.send(`**${commandName}** is not a command`).catch(); message.delete(); return;}
-        if (botcommand) try {botcommand.run(client, message, args)} catch {return}
-    }
+    if (!botcommand) {message.channel.send(`**${commandName}** is not a command`).catch(); message.delete(); return;}
+    if (botcommand) try {botcommand.run(client, message, args)} catch {return}
 })
 
 client.on("voiceStateUpdate", (oldMember, newMember) => {
