@@ -71,10 +71,22 @@ module.exports = {
         try {
             const guildId = interaction.guildId.toString()
             if (interaction.isSelectMenu()) {
-                if (interaction.customId == 'setup_default')
-                    guilds_settings[guildId].default_roles = interaction.values
-                if (interaction.customId == 'setup_games')
-                    guilds_settings[guildId].game_roles = interaction.values
+                var roleid = ''
+                if (interaction.customId == 'setup_default') {
+                    guilds_settings[guildId].default_roles = []
+                    for (i in interaction.values) {
+                        roleid = interaction.member.guild.roles.cache.find(r => r.name == interaction.values[i]).id
+                        guilds_settings[guildId].default_roles.push(roleid)
+                    }
+                }
+                roleid = ''
+                if (interaction.customId == 'setup_games') {
+                    guilds_settings[guildId].game_roles = []
+                    for (i in interaction.values) {
+                        roleid = interaction.member.guild.roles.cache.find(r => r.name == interaction.values[i]).id
+                        guilds_settings[guildId].game_roles.push(roleid)
+                    }
+                }
                 await write_file()
                 const embed = new discord.MessageEmbed().setColor(colors.cyan).setTitle('Your guild setup')
                 .addField('Welcome message', guilds_settings[guildId].welcome_message ? 'Enable' : 'Disable')

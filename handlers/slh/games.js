@@ -16,7 +16,7 @@ async function roles_manager(interaction) {
     try {
         var r = []
         for (i in interaction.values)
-            r.push(interaction.guild.roles.cache.find(role => role.name === interaction.values[i]))
+            r.push(interaction.guild.roles.cache.get(interaction.values[i]))
         if (interaction.customId.split('_')[1] === 'add')
             for (i in r) await interaction.member.roles.add(r[i])
         else if (interaction.customId.split('_')[1] === 'remove')
@@ -26,9 +26,12 @@ async function roles_manager(interaction) {
     } catch (e) {console.log('Error in /roles:', e); return false}
 }
 
-function create_options(list) {
+function create_options(list, guild) {
     res = []
-    for (i in list) res.push({ label: list[i], value: list[i], description: list[i] + ' role' })
+    for (i in list) {
+        var name = guild.roles.cache.get(list[i]).name
+        res.push({ label: name, value: list[i], description: name + ' role' })
+    }
     return res
 }
 
@@ -40,14 +43,13 @@ function create_menu(add, member) {
             .setCustomId('games_add')
             .setPlaceholder('Select roles to add')
             .setMinValues(1)
-            .addOptions(create_options(roles_list))
+            .addOptions(create_options(roles_list, member.guild))
         )
     } else {
         var tmp = []
         for (i in roles_list)
-            if (member.roles.cache.some(role => role.name === roles_list[i]))
+            if (member.roles.cache.some(role => role.id === roles_list[i]))
                 tmp.push(roles_list[i])
-        console.log(tmp)
         if (!tmp[0]) return false
         return new discord.MessageActionRow()
         .addComponents(
@@ -55,7 +57,7 @@ function create_menu(add, member) {
             .setCustomId('games_remove')
             .setPlaceholder('Select roles to remove')
             .setMinValues(1)
-            .addOptions(create_options(tmp))
+            .addOptions(create_options(tmp, member.guild))
         )
     }
 }
