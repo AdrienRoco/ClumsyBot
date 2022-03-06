@@ -161,7 +161,7 @@ client.on('guildMemberAdd', async member => {
     if (!member.user.bot) {
         if (roles_list[0]){
             for (i in roles_list) {
-                try {member.roles.add(guild.roles.cache.find(r => r.name == roles_list[i]))} catch {}
+                try {await member.roles.add(guild.roles.cache.find(r => r.name == roles_list[i]))} catch {}
             }
         }
         if (dm_msg) {
