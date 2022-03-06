@@ -22,6 +22,19 @@ function create_options(guild) {
     return res
 }
 
+async function display_manager(guildId, guild) {
+    try {
+        await write_file()
+        console.log()
+        const embed = new discord.MessageEmbed().setColor(colors.cyan).setTitle('Your guild setup')
+        .addField('Welcome message', guilds_settings[guildId].welcome_message ? 'Enable' : 'Disable')
+        .addField('Welcome message in DMs', guilds_settings[guildId].welcome_dm ? 'Enable' : 'Disable')
+        .addField('Default roles', guilds_settings[guildId].default_roles.length ? guild.roles.cache.map(r => [r.name, r.id]).filter(r => r[0] != '@everyone' && guilds_settings[guildId].default_roles.includes(r[1])).map(r => r[0]).join(', ') : 'No roles set')
+        .addField('Game roles', guilds_settings[guildId].game_roles.length ? guild.roles.cache.map(r => [r.name, r.id]).filter(r => r[0] != '@everyone' && guilds_settings[guildId].game_roles.includes(r[1])).map(r => r[0]).join(', ') : 'No roles set')
+        .addField('Temporary channel position', guilds_settings[guildId].temp_chan_pos.toString())
+        return {embeds: [embed], ephemeral: true}
+    } catch (e) {console.log('Error in /setup display:', e); return "Oups, I can't do that"}
+}
 
 module.exports = {
     test: false,
@@ -87,14 +100,7 @@ module.exports = {
                         guilds_settings[guildId].game_roles.push(roleid)
                     }
                 }
-                await write_file()
-                const embed = new discord.MessageEmbed().setColor(colors.cyan).setTitle('Your guild setup')
-                .addField('Welcome message', guilds_settings[guildId].welcome_message ? 'Enable' : 'Disable')
-                .addField('Welcome message in DMs', guilds_settings[guildId].welcome_dm ? 'Enable' : 'Disable')
-                .addField('Default roles', guilds_settings[guildId].default_roles.length ? guilds_settings[guildId].default_roles.join(', ') : 'No roles set')
-                .addField('Game roles', guilds_settings[guildId].game_roles.length ? guilds_settings[guildId].game_roles.join(', ') : 'No roles set')
-                .addField('Temporary channel position', guilds_settings[guildId].temp_chan_pos.toString())
-                return {embeds: [embed], ephemeral: true}
+                return display_manager(guildId, interaction.member.guild);
             }
             if (interaction.isCommand()) {
                 if (!interaction.member.permissions.has('ADMINISTRATOR')) return `You don't have the permission to do that`
@@ -131,14 +137,7 @@ module.exports = {
                         }
                     }
                 }
-                await write_file()
-                const embed = new discord.MessageEmbed().setColor(colors.cyan).setTitle('Your guild setup')
-                .addField('Welcome message', guilds_settings[guildId].welcome_message ? 'Enable' : 'Disable')
-                .addField('Welcome message in DMs', guilds_settings[guildId].welcome_dm ? 'Enable' : 'Disable')
-                .addField('Default roles', guilds_settings[guildId].default_roles.length ? guilds_settings[guildId].default_roles.join(', ') : 'No roles set')
-                .addField('Game roles', guilds_settings[guildId].game_roles.length ? guilds_settings[guildId].game_roles.join(', ') : 'No roles set')
-                .addField('Temporary channel position', guilds_settings[guildId].temp_chan_pos.toString())
-                return {embeds: [embed], ephemeral: true}
+                return display_manager(guildId, interaction.member.guild);
             }
         } catch (e) {console.log('Error in /setup:', e); return "Oups, I can't do that"}
     }
