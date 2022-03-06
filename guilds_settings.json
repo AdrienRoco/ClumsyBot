@@ -1,8 +1,0 @@
-{
-    "537322381816102914": {
-        "temp_chan_pos": "1",
-        "default_role_ids": ["847770115763994634", "798531659405852713"],
-        "rps_cat": "707635280835772488",
-        "welcome_msg": "`Bienvenu ${member} dans mon serveur **${member.guild}** !!😄\nIci tu es le bienvenu avec tous tes amis.😜\nTu peux inviter qui tu veux, quand tu veux!🤗\nSi tu veux faire un vocal, utilise les commandes / et tu auras un channel rien que pour toi et tes potes!👍`"
-    }
-}

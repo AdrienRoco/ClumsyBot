@@ -1,5 +1,3 @@
-const { MessageEmbed } = require("discord.js");
-const colors = require("../../colors.json");
 const fs = require("fs");
 
 var temp_cat = [];
@@ -46,8 +44,8 @@ function wait(ms) {
 }
 
 module.exports = {
-    name: "delete_channels",
-    run: async (guild) => {
+    name: "delete",
+    run: async ({ client }) => {
         try {
             temp_cat = [];
             temp_ch = [];
@@ -60,9 +58,9 @@ module.exports = {
             if (temp_cat.length != temp_ch.length && temp_cat.length != temp_tx.length) {console.log("Err in temp conf file"); return;}
             if (temp_cat_priv.length != temp_ch_priv.length && temp_cat_priv.length != temp_tx_priv.length) {console.log("Err in priv conf file"); return;}
             for (let i = temp_cat_priv.length - 1; i >= 0; i--) {
-                const c_ch_p = await guild.channels.cache.get(temp_cat_priv[i].id);
-                const t_ch_p = await guild.channels.cache.get(temp_tx_priv[i].id);
-                const v_ch_p = await guild.channels.cache.get(temp_ch_priv[i].id);
+                const c_ch_p = await client.channels.cache.get(temp_cat_priv[i].id);
+                const t_ch_p = await client.channels.cache.get(temp_tx_priv[i].id);
+                const v_ch_p = await client.channels.cache.get(temp_ch_priv[i].id);
                 if (v_ch_p && v_ch_p.members.size <= 0) {
                     try {await v_ch_p.delete().catch()} catch {}
                     try {await t_ch_p.delete().catch()} catch {}
@@ -75,9 +73,9 @@ module.exports = {
                 wait(3000)
             }
             for (let i = temp_cat.length - 1; i >= 0; i--) {
-                const c_ch = await guild.channels.cache.get(temp_cat[i].id);
-                const t_ch = await guild.channels.cache.get(temp_tx[i].id);
-                const v_ch = await guild.channels.cache.get(temp_ch[i].id);
+                const c_ch = await client.channels.cache.get(temp_cat[i].id);
+                const t_ch = await client.channels.cache.get(temp_tx[i].id);
+                const v_ch = await client.channels.cache.get(temp_ch[i].id);
                 if (v_ch && v_ch.members.size <= 0) {
                     try {await v_ch.delete().catch()} catch {}
                     try {await t_ch.delete().catch()} catch {}

@@ -1,8 +1,0 @@
-const colors = require("../../colors.json");
-
-module.exports = {
-    name: "aaa",
-    run: (client, message, args) => {
-        return;
-    }
-}

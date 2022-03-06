@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "nodemon"
+    "test": "nodemon --ignore config/"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,7 @@
   "homepage": "https://github.com/AdrienRoco/SlashBot#readme",
   "dependencies": {
     "ascii-table": "^0.0.9",
-    "discord.js": "^12.5.3",
+    "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",
     "node-fetch": "^2.6.1"
   }

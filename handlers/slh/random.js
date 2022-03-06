@@ -1,7 +1,6 @@
-const colors = require("../../colors.json");
 const types = require("../../arg_type.json");
-const discord = require("discord.js");
 const fetch = require("node-fetch");
+const discord = require("discord.js");
 
 function get_img(subs) {
     const extention_list = [".jpg", ".jpeg", ".png", ".gif", ".mp4"];
@@ -21,14 +20,14 @@ async function sub(sub_list, arg) {
     try {
         for (i in sub_list) subs.push(await fetch(`https://www.reddit.com/r/${sub_list[i]}/top/.json?sort=top&t=day`).then(res => res.json()));
         const img = get_img(subs);
+        if (img.endsWith("mp4") || img.endsWith("gif")) return img
         const embed = new discord.MessageEmbed()
         .setColor("RANDOM")
         .setImage(img)
         .setTitle(`Here is a random ${arg}`)
         .setURL(`https://reddit.com/`);
-        if (img.endsWith("mp4") || img.endsWith("gif")) return img
-        else return embed
-    } catch {return "Try again"}
+        return {embeds: [embed]}
+    } catch (e) {console.log('Error in /random fetch:', e); return "Try again"}
 }
 
 module.exports = {
@@ -63,13 +62,14 @@ module.exports = {
     ],
     callback: async ({ args }) => {
         try {
-            switch (args[0]) {
-                case 'meme': return await sub(["meme", "cursedcomments"], args[0]);
-                case 'dog': return await sub(["dog", "Cutedogsreddit", "Uglydogs"], args[0]);
-                case 'cat': return await sub(["cat"], args[0]);
-                case 'rat': return await sub(["rats"], args[0]);
+            const val = args[0].value;
+            switch (val) {
+                case 'meme': return await sub(["meme", "cursedcomments"], val);
+                case 'dog': return await sub(["dog", "Cutedogsreddit", "Uglydogs"], val);
+                case 'cat': return await sub(["cat"], val);
+                case 'rat': return await sub(["rats"], val);
                 default: return "Oups, I don't know about that"
             }
-        } catch {return "Oups, I can't do that"}
+        } catch (e) {console.log('Error in /random:', e); return "Oups, I can't do that"}
     },
 }

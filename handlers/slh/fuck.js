@@ -14,17 +14,14 @@ module.exports = {
             required: false,
         },
     ],
-    callback: ({client, args}) => {
+    callback: async ({ args }) => {
         try {
             const embed = new discord.MessageEmbed()
             .setTitle('Fuck you')
             .setColor(colors.red)
-            if (args[0]) {
-                embed.setDescription(client.users.cache.get(args[0]))
-            } else {
-                embed.setTitle("Then go fuck yourself")
-            }
-            return embed;
-        } catch {return "Oups, I can't do that"}
+            if (args[0]) embed.setDescription(`${args[0].member}`)
+            else embed.setTitle("Then go fuck yourself")
+            return {embeds: [embed]};
+        } catch (e) {console.log('Error in /fuck:', e); return "Oups, I can't do that"}
     }
 }

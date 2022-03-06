@@ -10,17 +10,18 @@ module.exports = {
             name: 'number',
             description: 'How many you want to nuke',
             type: types.int,
-            required: true,
+            required: false,
         },
     ],
-    callback: ({ client, interaction, args }) => {
+    callback: async ({ interaction, args }) => {
         try {
-            let number = args[0]
-            if (!client.guilds.cache.get(interaction.guild_id).members.cache.get(interaction.member.user.id).hasPermission("MANAGE_MESSAGES")) return "You can't do that";
+            let number = args[0].value
+            if (!number) number = 100
             if (number <= 0) return "I can't delete 0 message...";
             if (number > 100) number = 100;
-            return client.guilds.cache.get(interaction.guild_id).channels.cache.get(interaction.channel_id).bulkDelete(number, true)
-            .then(del => `I deleted \`${del.size}\` messages.`);
-        } catch {return "Oups, I can't do that"}
+            if (!interaction.member.permissions.has("MANAGE_MESSAGES")) return "You can't do that";
+            return await interaction.member.guild.channels.cache.get(interaction.channelId).bulkDelete(number, true)
+            .then(del => `I deleted ${del.size} messages.`);
+        } catch (e) {console.log('Error in /nuke:', e); return "Oups, I can't do that"}
     },
 }
