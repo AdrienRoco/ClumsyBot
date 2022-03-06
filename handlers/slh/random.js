@@ -20,13 +20,13 @@ async function sub(sub_list, arg) {
     try {
         for (i in sub_list) subs.push(await fetch(`https://www.reddit.com/r/${sub_list[i]}/top/.json?sort=top&t=day`).then(res => res.json()));
         const img = get_img(subs);
-        if (img.endsWith("mp4") || img.endsWith("gif")) return img
+        if (img.endsWith("mp4") || img.endsWith("gif")) return {content: img, ephemeral: false};
         const embed = new discord.MessageEmbed()
         .setColor("RANDOM")
         .setImage(img)
         .setTitle(`Here is a random ${arg}`)
         .setURL(`https://reddit.com/`);
-        return {embeds: [embed]}
+        return {embeds: [embed], ephemeral: false}
     } catch (e) {console.log('Error in /random fetch:', e); return "Try again"}
 }
 
