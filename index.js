@@ -159,9 +159,10 @@ client.on('guildMemberAdd', async member => {
         main.send({ embeds: [wel] });
     }
     if (!member.user.bot) {
-        if (roles_list[0]){
+        if (roles_list[0]) {
             for (i in roles_list) {
-                try {await member.roles.add(guild.roles.cache.get(roles_list[i]))} catch (e) {console.log('Error in GuildMemberAdd:', e)}
+                if (guild.roles.cache.map(role => role).filter(role => role.tags && role.tags.botId == client.user.id)[0].rawPosition > guild.roles.cache.get(roles_list[i]).rawPosition)
+                    try {await member.roles.add(guild.roles.cache.get(roles_list[i]))} catch (e) {console.log('Error in GuildMemberAdd:', e)}
             }
         }
         if (dm_msg) {

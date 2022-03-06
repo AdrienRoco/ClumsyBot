@@ -12,15 +12,21 @@ async function read_conf() {
     return conf;
 }
 
-async function roles_manager(interaction) {
+async function roles_manager(client, interaction) {
     try {
         var r = []
         for (i in interaction.values)
             r.push(interaction.guild.roles.cache.get(interaction.values[i]))
         if (interaction.customId.split('_')[1] === 'add')
-            for (i in r) await interaction.member.roles.add(r[i])
+            for (i in r) {
+                if (interaction.guild.roles.cache.map(role => role).filter(role => role.tags && role.tags.botId == client.user.id)[0].rawPosition > r[i].rawPosition)
+                    await interaction.member.roles.add(r[i])
+            }
         else if (interaction.customId.split('_')[1] === 'remove')
-            for (i in r) await interaction.member.roles.remove(r[i])
+            for (i in r) {
+                if (interaction.guild.roles.cache.map(role => role).filter(role => role.tags && role.tags.botId == client.user.id)[0].rawPosition > r[i].rawPosition)
+                    await interaction.member.roles.remove(r[i])
+            }
         else return false
         return true
     } catch (e) {console.log('Error in /roles:', e); return false}
@@ -90,7 +96,7 @@ module.exports = {
             try{roles_list = guilds_settings[interaction.guildId.toString()].game_roles} catch {roles_list = []}
             if (!roles_list[0]) return 'No game roles set up for this guild, ask an admin to run /setup'
             if (interaction.isSelectMenu()) {
-                const res = await roles_manager(interaction)
+                const res = await roles_manager(client, interaction)
                 embed = new discord.MessageEmbed()
                 .setTitle('Roles Manager').setThumbnail(client.users.cache.get(interaction.user.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
                 if (res) {
