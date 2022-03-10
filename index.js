@@ -8,7 +8,7 @@ const client = new DiscordJS.Client({ intents: 32767 });
 
 client.botcommands = new DiscordJS.Collection();
 client.slhcommands = new DiscordJS.Collection();
-client.shifumiinteraction = new DiscordJS.Collection();
+client.gamesinteractions = new DiscordJS.Collection();
 ["command"].forEach(async handler => {
     await require(`./handlers/${handler}`)(client);
 });
@@ -111,7 +111,7 @@ client.on('interactionCreate', async (interaction) => {
             if (interaction.commandName == 'nuke') {await interaction.reply({ content: res, ephemeral: true }); return}
         }
         command_reply(interaction, res)
-    } catch (e) {console.log('Error in interactionCreate:', e); return}
+    } catch (e) {console.log('Error in interactionCreate:', e); return command_reply(interaction, { content: "Oups, I can't do that. Ask admin if persistent", ephemeral: true })}
 })
 
 client.on('messageCreate', async message => {
