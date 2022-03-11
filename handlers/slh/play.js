@@ -18,7 +18,7 @@ async function solo_shifumi(client, interaction, game_interaction, p1) {
         embed.setColor(result == 'p1' ? colors.green : colors.red ).addField(result == 'p1' ? 'You won!' : 'You lost!', `${p1} vs ${p2}`).setFooter({ text: ""})
         .addField('Winner:', result == 'p1' ? `${game_interaction.user}` : `${client.user}!`)
         await game_interaction.editReply({ embeds: [embed], components: [] })
-        client.gamesinteractions.delete(game_interaction.id)
+        try {client.gamesinteractions.delete(game_interaction.id)} catch {}
     } else {
         embed.setColor(colors.yellow).addField('It\'s a tie!', `${p1} vs ${p2}`)
         await game_interaction.editReply({ embeds: [embed] })
@@ -34,7 +34,7 @@ async function multi_shifumi(client, interaction, game_interaction, p1, p2) {
         embed.setColor(colors.green).addField('Someone won!', `${p1} vs ${p2}`).setFooter({ text: ""})
         .addField('Winner:', result == 'p1' ? `${game_interaction.user}` : `${game_interaction.options._hoistedOptions[1].user}`)
         await game_interaction.editReply({ embeds: [embed], components: [] })
-        client.gamesinteractions.delete(game_interaction.id)
+        try {client.gamesinteractions.delete(game_interaction.id)} catch {}
     } else {
         embed.setColor(colors.yellow).addField('It\'s a tie!', `${p1} vs ${p2}`)
         client.gamesinteractions.get(game_interaction.id).options._subcommand = [null, null]
@@ -119,14 +119,14 @@ async function check_win_tictactoe(client, interaction, game_interaction, matric
         .setColor(win[0] == 1 ? colors.green : nPlayers == 2 ? colors.green : colors.red).setFooter({ text: "" })
         .addField('Winner:', `${win[0] == 1 ? game_interaction.member : nPlayers == 1 ? client.user : game_interaction.options._hoistedOptions[1].user}!`)
         await game_interaction.editReply({ embeds: [embed], components: rows })
-        client.gamesinteractions.delete(game_interaction.id)
+        try {client.gamesinteractions.delete(game_interaction.id)} catch {}
         return true
     } else if (win[0] == -1) {
         const embed = interaction.message.embeds[0]
         .setColor(colors.yellow).setFooter({ text: "" })
         .addField('Winner:', 'No winner, it\'s a tie!')
         await game_interaction.editReply({ embeds: [embed], components: rows })
-        client.gamesinteractions.delete(game_interaction.id)
+        try {client.gamesinteractions.delete(game_interaction.id)} catch {}
         return true
     } else {
         await game_interaction.editReply({ components: rows })
@@ -170,6 +170,7 @@ async function gess_move_tictactoe(matrice, first) {
         if (matrice[0][1] == 1 && matrice[1][2] == 1 && matrice[0][2] == 0) return [0, 2]
         if (matrice[1][0] == 1 && matrice[2][1] == 1 && matrice[2][0] == 0) return [2, 0]
         if (matrice[1][2] == 1 && matrice[2][1] == 1 && matrice[2][2] == 0) return [2, 2]
+        if (matrice[2][1] == 1 && matrice[1][1] == 2 && matrice[1][2] == 0) return [1, 2]
         if (matrice[1][1] == 0) return [1, 1]
         if (matrice[0][1] == 0) return [0, 1]
         if (matrice[1][0] == 0) return [1, 0]
@@ -276,7 +277,8 @@ module.exports = {
                 } else if (args[0].value == 'tictactoe') {
                     client.gamesinteractions.get(interaction.id).options._subcommand = [[[0,0,0],[0,0,0],[0,0,0]]]
                     if (!args[1] || args[1].member.user.bot || args[1].user.id == interaction.user.id) {
-                        const first = Math.round(Math.random())
+                        // const first = Math.round(Math.random())
+                        const first = 0
                         const embed = new discord.MessageEmbed()
                         .setColor(colors.blue)
                         .setTitle('Tic Tac Toe')
@@ -365,7 +367,7 @@ module.exports = {
                             embed.fields = embed.fields.slice(0, -1)
                             embed.setColor(colors.red).setFooter({ text: ""}).addField("To bad!", `${interaction.member} don't want to play with you`);
                             await game_interaction.editReply({ embeds: [embed], components: [] })
-                            client.gamesinteractions.delete(game_interaction.id)
+                            try {client.gamesinteractions.delete(game_interaction.id)} catch {}
                             return true
                         }
                     }
@@ -406,7 +408,7 @@ module.exports = {
                             embed.fields = embed.fields.slice(0, -1)
                             embed.setColor(colors.red).setFooter({ text: ""}).addField("To bad!", `${interaction.member} don't want to play with you`);
                             await game_interaction.editReply({ embeds: [embed], components: [] })
-                            client.gamesinteractions.delete(game_interaction.id)
+                            try {client.gamesinteractions.delete(game_interaction.id)} catch {}
                             return true
                         }
                     }
