@@ -183,7 +183,7 @@ client.on('guildMemberRemove', async member => {
     if (wel_msg) {
         const embed = new DiscordJS.MessageEmbed().setTitle("Goodbye").setColor(colors.red).setTimestamp()
         .setThumbnail(client.users.cache.get(member.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
-        .setDescription(`Goodbye ${member}, have a great time!`)
+        .setDescription(`Goodbye \`${member.user.username}#${member.user.discriminator}\`, have a great time!`)
         main.send({embeds: [embed]});
     }
 })
