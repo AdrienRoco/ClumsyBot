@@ -1,3 +1,4 @@
+const temp_channels = require('./channels.js');
 const DiscordJS = require('discord.js');
 const colors = require("./colors.json");
 const fs = require("fs");
@@ -14,8 +15,8 @@ client.gamesinteractions = new DiscordJS.Collection();
 });
 
 var guilds_settings = {}
-async function read_conf() {
-    const rawdata = fs.readFileSync('./config/guilds_settings.json');
+async function read_conf(path) {
+    const rawdata = fs.readFileSync(path);
     const conf = JSON.parse(rawdata);
     return conf;
 }
@@ -58,6 +59,7 @@ client.on('ready', async () => {
     commands = await get_app().commands.get().catch(() => {console.log("no commands")})
     for (i in commands) {console.log("Global cmd's", i, [commands[i].id, commands[i].name])}
 
+    await temp_channels.load();
     client.user.setActivity('you👀', { type: 'WATCHING' })
     console.log(`\n${client.user.username} Ready\n`)
 })
@@ -140,14 +142,14 @@ client.on('messageCreate', async message => {
 })
 
 client.on("voiceStateUpdate", async (oldMember, newMember) => {
-    if (oldMember.channel != newMember.channel && newMember.channel == null && oldMember.channel.members.size == 0)
+    if (oldMember.channel != null && oldMember.channel != newMember.channel && oldMember.channel.members.size == 0)
         try {await client.botcommands.get('delete').run({ client })} catch {}
 });
 
 client.on('guildMemberAdd', async member => {
     const guild = client.guilds.cache.get(member.guild.id);
     const main = guild.channels.cache.get(guild.systemChannelId);
-    guilds_settings = await read_conf()
+    guilds_settings = await read_conf('./config/guilds_settings.json')
     var wel_msg, dm_msg, roles_list;
     try {wel_msg = guilds_settings[member.guild.id].welcome_message} catch {wel_msg = true}
     try {dm_msg = guilds_settings[member.guild.id].dm_message} catch {dm_msg = true}
@@ -177,7 +179,7 @@ client.on('guildMemberRemove', async member => {
     const guild = client.guilds.cache.get(member.guild.id);
     const main = guild.channels.cache.get(guild.systemChannelId);
     if (!main) {return}
-    guilds_settings = await read_conf()
+    guilds_settings = await read_conf('./config/guilds_settings.json')
     var wel_msg;
     try {wel_msg = guilds_settings[member.guild.id].welcome_message} catch {wel_msg = true}
     if (wel_msg) {

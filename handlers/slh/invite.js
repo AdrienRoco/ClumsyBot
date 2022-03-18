@@ -1,40 +1,27 @@
+const temp_channels = require('../../channels.js');
 const colors = require("../../colors.json");
 const types = require("../../arg_type.json");
 const discord = require("discord.js");
-const fs = require("fs");
-
-var temp_cat_priv = [];
-var temp_ch_priv = [];
-var temp_tx_priv = [];
-
-async function read_file() {
-    let rawdata = fs.readFileSync('./config/temp_priv_ids.json');
-    let ids = JSON.parse(rawdata);
-    for (let i = 0; i < ids.temp_cat_priv.length; i++) {
-        temp_cat_priv.push(ids.temp_cat_priv[i]);
-        temp_ch_priv.push(ids.temp_ch_priv[i]);
-        temp_tx_priv.push(ids.temp_tx_priv[i]);
-    }
-}
 
 function chan_is_private(chanel_id) {
-    if (temp_tx_priv.length <= 0) return false;
-    for (i in temp_tx_priv) if (temp_tx_priv[i].id == chanel_id) return i + 1;
+    const list = Object.keys(temp_channels.get());
+    for (i in list)
+        if (temp_channels.get()[list[i]].text == chanel_id && temp_channels.get()[list[i]].private) return list[i];
     return false;
 }
 
-async function invite(client, interaction, mention) {
+async function invite(client, interaction, mention, ping) {
     try {
         if (!mention) {throw new Error("No mention provided!")}
-        const i = chan_is_private(interaction.channelId) - 1
-        const cat = client.channels.cache.get(temp_cat_priv[i].id)
-        const text = client.channels.cache.get(temp_tx_priv[i].id)
-        const voic = client.channels.cache.get(temp_ch_priv[i].id)
+        const id = chan_is_private(interaction.channelId)
+        const cat = client.channels.cache.get(id)
+        const text = client.channels.cache.get(temp_channels.get()[id].text)
+        const voic = client.channels.cache.get(temp_channels.get()[id].voice)
         const embed = new discord.MessageEmbed()
         .setTitle('Channel info').setColor(colors.green).setTimestamp()
         .setThumbnail(client.users.cache.get(interaction.user.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
         .setDescription(`Fine, I will invite ${mention}🔓`)
-        if (!cat || !text || !voic) {throw new Error("Channel not found")}
+        if (!cat || !text || !voic) return false
         await cat.permissionOverwrites.edit(mention, {
             VIEW_CHANNEL: true,
             CREATE_INSTANT_INVITE: true,
@@ -55,8 +42,12 @@ async function invite(client, interaction, mention) {
             STREAM: true,
             USE_VAD: true,
         })
+        if (ping) {
+            message = await text.send({ content: `${mention}` })
+            setTimeout(() => message.delete(), 100)
+        }
         return embed
-    } catch (e) {console.log('Error in /invite:', e); return}
+    } catch (e) {console.log('Error in /invite:', e); return false}
 }
 
 module.exports = {
@@ -65,37 +56,24 @@ module.exports = {
     description: 'Invite someone in you\'r private channel',
     args: [
         {
-            name: 'user',
-            description: 'A user you want to invite',
-            type: types.user,
-            required: false,
+            name: 'user_or_role',
+            description: 'The user or role you want to invite',
+            type: types.mention,
+            required: true
         },
         {
-            name: 'role',
-            description: 'A role you want to invite',
-            type: types.role,
-            required: false,
+            name: 'ping',
+            description: 'Ping the user on invite',
+            type: types.bool,
+            required: true,
         },
     ],
     callback: async ({ client, interaction, args }) => {
         try {
-            temp_cat_priv = [];
-            temp_ch_priv = [];
-            temp_tx_priv = [];
-            await read_file()
             if (!chan_is_private(interaction.channelId)) {return `You must be in a private chanel`}
-            if (!args[0]) {return "You must select a user and/or a role"}
-
-            let mention; let role;
-            for (i in args) {
-                if (args[i].type == 'USER') mention = args[i].member
-                else if (args[i].type == 'ROLE') role = args[i].role
-            }
-            embed_list = []
-            if (!mention && !role) {return "You must select a user and/or a role"}
-            if (mention) {embed_list.push(await invite(client, interaction, mention))}
-            if (role) {embed_list.push(await invite(client, interaction, role))}
-            return { embeds: embed_list }
+            const res = await invite(client, interaction, args[0].user ? args[0].user : args[0].role, args[1].value)
+            if (!res) {return "Oups, I can't do that"}
+            return { embeds: [res] }
         } catch (e) {console.log('Error in /invite:', e); return "Oups, I can't do that"}
     },
 }

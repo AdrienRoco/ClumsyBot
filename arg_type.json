@@ -4,5 +4,6 @@
     "bool": 5,
     "user": 6,
     "channel": 7,
-    "role": 8
+    "role": 8,
+    "mention": 9
 }
