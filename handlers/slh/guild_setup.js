@@ -1,19 +1,7 @@
+const guilds_settings = require('../../configuration.js');
 const colors = require("../../colors.json");
 const types = require("../../arg_type.json");
 const discord = require('discord.js')
-const fs = require('fs')
-
-var guilds_settings = {}
-
-async function read_file() {
-    const rawdata = fs.readFileSync('./config/guilds_settings.json');
-    guilds_settings = JSON.parse(rawdata);
-}
-
-async function write_file() {
-    const data = JSON.stringify(guilds_settings, null, 2)
-    fs.writeFileSync('./config/guilds_settings.json', data, (err) => {if (err) throw err;});
-}
 
 function create_options(guild) {
     var res = []
@@ -24,14 +12,12 @@ function create_options(guild) {
 
 async function display_manager(guildId, guild) {
     try {
-        await write_file()
-        console.log()
         const embed = new discord.MessageEmbed().setColor(colors.cyan).setTitle('Your guild setup')
-        .addField('Welcome message', guilds_settings[guildId].welcome_message ? 'Enable' : 'Disable')
-        .addField('Welcome message in DMs', guilds_settings[guildId].welcome_dm ? 'Enable' : 'Disable')
-        .addField('Default roles', guilds_settings[guildId].default_roles.length ? guild.roles.cache.map(r => [r.name, r.id]).filter(r => r[0] != '@everyone' && guilds_settings[guildId].default_roles.includes(r[1])).map(r => r[0]).join(', ') : 'No roles set')
-        .addField('Game roles', guilds_settings[guildId].game_roles.length ? guild.roles.cache.map(r => [r.name, r.id]).filter(r => r[0] != '@everyone' && guilds_settings[guildId].game_roles.includes(r[1])).map(r => r[0]).join(', ') : 'No roles set')
-        .addField('Temporary channel position', guilds_settings[guildId].temp_chan_pos.toString())
+        .addField('Welcome message', guilds_settings.get(guildId).welcome_message ? 'Enable' : 'Disable')
+        .addField('Welcome message in DMs', guilds_settings.get(guildId).welcome_dm ? 'Enable' : 'Disable')
+        .addField('Default roles', guilds_settings.get(guildId).default_roles.length ? guild.roles.cache.map(r => [r.name, r.id]).filter(r => r[0] != '@everyone' && guilds_settings.get(guildId).default_roles.includes(r[1])).map(r => r[0]).join(', ') : 'No roles set')
+        .addField('Game roles', guilds_settings.get(guildId).game_roles.length ? guild.roles.cache.map(r => [r.name, r.id]).filter(r => r[0] != '@everyone' && guilds_settings.get(guildId).game_roles.includes(r[1])).map(r => r[0]).join(', ') : 'No roles set')
+        .addField('Temporary channel position', guilds_settings.get(guildId).temp_chan_pos.toString())
         return {embeds: [embed], ephemeral: true}
     } catch (e) {console.log('Error in /setup display:', e); return "Oups, I can't do that"}
 }
@@ -74,7 +60,7 @@ module.exports = {
             ],
         },
         {
-            name: 'temporary_channel_position',
+            name: 'temp_chan_pos',
             description: 'The position of the temporary channel, default: 1',
             type: types.int,
             required: false,
@@ -85,44 +71,38 @@ module.exports = {
             const guildId = interaction.guildId.toString()
             if (interaction.isSelectMenu()) {
                 var roleid = ''
+                var list = []
                 if (interaction.customId == 'setup_default') {
-                    guilds_settings[guildId].default_roles = []
+                    list = guilds_settings.get(guildId).default_roles
                     for (i in interaction.values) {
                         roleid = interaction.member.guild.roles.cache.find(r => r.name == interaction.values[i]).id
-                        guilds_settings[guildId].default_roles.push(roleid)
+                        list.push(roleid)
                     }
+                    guilds_settings.modify(guildId, 'default_roles', list)
                 }
                 roleid = ''
+                list = []
                 if (interaction.customId == 'setup_games') {
-                    guilds_settings[guildId].game_roles = []
+                    list = guilds_settings.get(guildId).game_roles
                     for (i in interaction.values) {
                         roleid = interaction.member.guild.roles.cache.find(r => r.name == interaction.values[i]).id
-                        guilds_settings[guildId].game_roles.push(roleid)
+                        list.push(roleid)
                     }
+                    guilds_settings.modify(guildId, 'game_roles', list)
                 }
+                await guilds_settings.save()
                 return display_manager(guildId, interaction.member.guild);
             }
             if (interaction.isCommand()) {
                 if (!interaction.member.permissions.has('ADMINISTRATOR')) return `You don't have the permission to do that`
-                await read_file()
-                if (guildId in guilds_settings == false) {
-                    guilds_settings[guildId] = {
-                        welcome_message: true,
-                        welcome_dm: true,
-                        default_roles: [],
-                        game_roles: [],
-                        temp_chan_pos: 1,
-                    }
-                }
+                if (guildId in guilds_settings.get() == false) {guilds_settings.set(guildId); await guilds_settings.save()}
+                var row = new discord.MessageActionRow();
+                var roles = false
                 for (i in args) {
-                    var row = new discord.MessageActionRow();
-                    if (args[i].name == 'temporary_channel_position') guilds_settings[guildId].temp_chan_pos = args[i].value
-                    else if (args[i].name == 'welcome_message') guilds_settings[guildId].welcome_message = args[i].value
-                    else if (args[i].name == 'welcome_dm') guilds_settings[guildId].welcome_dm = args[i].value
-                    else if (args[i].name == 'default_roles') {
+                    if (args[i].name == 'default_roles') {
                         if (args[i].value == 'reset') {
-                            guilds_settings[guildId].default_roles = []
-                            guilds_settings[guildId].game_roles = []
+                            guilds_settings.modify(guildId, 'default_roles', [])
+                            guilds_settings.modify(guildId, 'game_roles', [])
                         } else {
                             row.addComponents(
                                 new discord.MessageSelectMenu()
@@ -132,11 +112,12 @@ module.exports = {
                                 .addOptions(create_options(interaction.member.guild))
                             )
                             row.components[0].setMaxValues(row.components[0].options.length)
-                            await write_file()
-                            return {components: [row], ephemeral: true}
+                            roles = true
                         }
-                    }
+                    } else guilds_settings.modify(guildId, args[i].name, args[i].value)
                 }
+                await guilds_settings.save()
+                if (roles) return {components: [row], ephemeral: true}
                 return display_manager(guildId, interaction.member.guild);
             }
         } catch (e) {console.log('Error in /setup:', e); return "Oups, I can't do that"}

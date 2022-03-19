@@ -1,22 +1,14 @@
+const guilds_settings = require('../../configuration.js');
 const temp_channels = require('../../channels.js');
 const colors = require("../../colors.json");
 const types = require("../../arg_type.json");
 const discord = require('discord.js')
-const fs = require("fs");
-
-var guilds_settings = {}
-
-async function read_conf() {
-    const rawdata = fs.readFileSync('./config/guilds_settings.json');
-    const conf = JSON.parse(rawdata);
-    return conf;
-}
 
 async function create_channels(guild, author) {
     try {
         const name = author.username;
         var pos
-        try {pos = guilds_settings[guild.id].temp_chan_pos} catch {pos = 1}
+        try {pos = guilds_settings.get(guild.id).temp_chan_pos} catch {pos = 1}
         var embed = new discord.MessageEmbed().setColor(colors.cyan).setTimestamp()
         .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))
         .setTitle("Hi there!")
@@ -42,7 +34,7 @@ async function create_private_channels(guild, author) {
     try {
         const name = author.username;
         var pos
-        try {pos = guilds_settings[guild.id].temp_chan_pos} catch {pos = 1}
+        try {pos = guilds_settings.get(guild.id).temp_chan_pos} catch {pos = 1}
         var embed = new discord.MessageEmbed().setColor(colors.cyan).setTimestamp()
         .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))
         .setTitle("Hi there!")
@@ -97,7 +89,6 @@ module.exports = {
     ],
     callback: async ({ interaction, args }) => {
         try {
-            guilds_settings = await read_conf()
             switch (args[0].value) {
                 case 'normal':
                     if (await create_channels(interaction.member.guild, interaction.user)) return 'Ok, done'

@@ -1,16 +1,9 @@
+const guilds_settings = require('../../configuration.js');
 const colors = require("../../colors.json");
 const types = require("../../arg_type.json");
 const discord = require("discord.js");
-const fs = require("fs");
 
-var guilds_settings = {}
 var roles_list = []
-
-async function read_conf() {
-    const rawdata = fs.readFileSync('./config/guilds_settings.json');
-    const conf = JSON.parse(rawdata);
-    return conf;
-}
 
 async function roles_manager(client, interaction) {
     try {
@@ -92,8 +85,7 @@ module.exports = {
     ],
     callback: async ({ client, interaction, args }) => {
         try {
-            guilds_settings = await read_conf()
-            try{roles_list = guilds_settings[interaction.guildId.toString()].game_roles} catch {roles_list = []}
+            try {roles_list = guilds_settings.get(interaction.guildId).game_roles} catch {roles_list = []}
             if (!roles_list[0]) return 'No game roles set up for this guild, ask an admin to run /setup'
             if (interaction.isSelectMenu()) {
                 const res = await roles_manager(client, interaction)

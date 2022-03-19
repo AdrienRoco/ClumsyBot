@@ -6,7 +6,7 @@ const discord = require("discord.js");
 function chan_is_private(chanel_id) {
     const list = Object.keys(temp_channels.get());
     for (i in list)
-        if (temp_channels.get()[list[i]].text == chanel_id && temp_channels.get()[list[i]].private) return list[i];
+        if (temp_channels.get(list[i]).text == chanel_id && temp_channels.get(list[i]).private) return list[i];
     return false;
 }
 
@@ -15,8 +15,8 @@ async function invite(client, interaction, mention, ping) {
         if (!mention) {throw new Error("No mention provided!")}
         const id = chan_is_private(interaction.channelId)
         const cat = client.channels.cache.get(id)
-        const text = client.channels.cache.get(temp_channels.get()[id].text)
-        const voic = client.channels.cache.get(temp_channels.get()[id].voice)
+        const text = client.channels.cache.get(temp_channels.get(id).text)
+        const voic = client.channels.cache.get(temp_channels.get(id).voice)
         const embed = new discord.MessageEmbed()
         .setTitle('Channel info').setColor(colors.green).setTimestamp()
         .setThumbnail(client.users.cache.get(interaction.user.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))

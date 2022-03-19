@@ -1,8 +1,10 @@
 const fs = require('fs');
+const file_path = './config/temp_ids.json';
 
 var temp_channels = {};
 
-exports.get = function() {
+exports.get = function(id = null) {
+    if (id) return temp_channels[id];
     return temp_channels;
 }
 
@@ -24,11 +26,11 @@ exports.remove = function(categoryId) {
 
 exports.save = async function() {
     const data = JSON.stringify(temp_channels, null, 2);
-    fs.writeFileSync('./config/temp_ids.json', data, (err) => {if (err) throw err});
+    fs.writeFileSync(file_path, data, (err) => {if (err) throw err});
 }
 
 exports.load = async function() {
-    const rawdata = fs.readFileSync('./config/temp_ids.json');
+    const rawdata = fs.readFileSync(file_path);
     const data = JSON.parse(rawdata);
     temp_channels = data;
 }

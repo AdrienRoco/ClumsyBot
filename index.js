@@ -1,7 +1,7 @@
+const guilds_settings = require('./configuration.js');
 const temp_channels = require('./channels.js');
 const DiscordJS = require('discord.js');
 const colors = require("./colors.json");
-const fs = require("fs");
 require('dotenv').config({ path: './config/.env' })
 
 const guild_test_ids = ['702461452564430948'];
@@ -14,13 +14,6 @@ client.gamesinteractions = new DiscordJS.Collection();
     await require(`./handlers/${handler}`)(client);
 });
 
-var guilds_settings = {}
-async function read_conf(path) {
-    const rawdata = fs.readFileSync(path);
-    const conf = JSON.parse(rawdata);
-    return conf;
-}
-
 const get_app = (guildId => {
     const app = client.api.applications(client.user.id)
     if (guildId) {app.guilds(guildId)}
@@ -28,6 +21,8 @@ const get_app = (guildId => {
 })
 
 client.on('ready', async () => {
+    await guilds_settings.load();
+    await temp_channels.load();
     try {
         client.slhcommands.forEach(element => {
             if (!element.test) {
@@ -59,7 +54,6 @@ client.on('ready', async () => {
     commands = await get_app().commands.get().catch(() => {console.log("no commands")})
     for (i in commands) {console.log("Global cmd's", i, [commands[i].id, commands[i].name])}
 
-    await temp_channels.load();
     client.user.setActivity('you👀', { type: 'WATCHING' })
     console.log(`\n${client.user.username} Ready\n`)
 })
@@ -149,11 +143,10 @@ client.on("voiceStateUpdate", async (oldMember, newMember) => {
 client.on('guildMemberAdd', async member => {
     const guild = client.guilds.cache.get(member.guild.id);
     const main = guild.channels.cache.get(guild.systemChannelId);
-    guilds_settings = await read_conf('./config/guilds_settings.json')
     var wel_msg, dm_msg, roles_list;
-    try {wel_msg = guilds_settings[member.guild.id].welcome_message} catch {wel_msg = true}
-    try {dm_msg = guilds_settings[member.guild.id].dm_message} catch {dm_msg = true}
-    try {roles_list = guilds_settings[member.guild.id].default_roles} catch {roles_list = []}
+    try {wel_msg = guilds_settings.get(member.guild.id).welcome_message} catch {wel_msg = true}
+    try {dm_msg = guilds_settings.get(member.guild.id).welcome_dm} catch {dm_msg = true}
+    try {roles_list = guilds_settings.get(member.guild.id).default_roles} catch {roles_list = []}
     if (wel_msg && main) {
         const wel = new DiscordJS.MessageEmbed().setTitle("Welcome").setColor(colors.green).setTimestamp()
         .setThumbnail(client.users.cache.get(member.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
@@ -179,9 +172,8 @@ client.on('guildMemberRemove', async member => {
     const guild = client.guilds.cache.get(member.guild.id);
     const main = guild.channels.cache.get(guild.systemChannelId);
     if (!main) {return}
-    guilds_settings = await read_conf('./config/guilds_settings.json')
     var wel_msg;
-    try {wel_msg = guilds_settings[member.guild.id].welcome_message} catch {wel_msg = true}
+    try {wel_msg = guilds_settings.get(member.guild.id).welcome_message} catch {wel_msg = true}
     if (wel_msg) {
         const embed = new DiscordJS.MessageEmbed().setTitle("Goodbye").setColor(colors.red).setTimestamp()
         .setThumbnail(client.users.cache.get(member.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
