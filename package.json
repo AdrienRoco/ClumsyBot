@@ -24,9 +24,9 @@
   },
   "homepage": "https://github.com/AdrienRoco/SlashBot#readme",
   "dependencies": {
-    "ascii-table": "0.0.9",
     "discord.js": "14.8.0",
     "dotenv": "16.0.3",
-    "node-fetch": "2.6.9"
+    "node-fetch": "2.6.9",
+    "nodemon": "latest"
   }
 }

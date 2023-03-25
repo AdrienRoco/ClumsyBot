@@ -4,7 +4,7 @@ const file_path = './config/temp_ids.json';
 var temp_channels = {};
 
 exports.get = function(id = null) {
-    if (id) return temp_channels[id];
+    try {if (id) return temp_channels[id]} catch {return undefined}
     return temp_channels;
 }
 
@@ -12,16 +12,14 @@ exports.set = function(data) {
     temp_channels = data;
 }
 
-exports.add = function(categoryId, textId, voiceId, private = false) {
-    temp_channels[categoryId] = {
-        "text": textId,
-        "voice": voiceId,
+exports.add = function(voiceId, private = false) {
+    temp_channels[voiceId] = {
         "private": private
     }
 }
 
-exports.remove = function(categoryId) {
-    delete temp_channels[categoryId];
+exports.remove = function(voiceId) {
+    delete temp_channels[voiceId];
 }
 
 exports.save = async function() {

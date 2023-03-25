@@ -140,10 +140,43 @@ client.on(DiscordJS.Events.InteractionCreate, async interaction => {
 //     } catch (e) {console.error('Error in messageCreate:', e); return}
 // })
 
-// client.on("voiceStateUpdate", async (oldMember, newMember) => {
-//     if (oldMember.channel != null && oldMember.channel != newMember.channel && oldMember.channel.members.size == 0)
-//         try {await client.botCommands.get('delete').run({ client })} catch {}
+const wait = require('node:timers/promises').setTimeout;
+client.on("voiceStateUpdate", async (oldState, newState) => {
+    if (oldState.channel != null && oldState.channel != newState.channel && oldState.channel.members.size == 0) {
+        await wait(5000);
+        try {await client.Commands.get('delete').execute({ client })} catch (e) {console.error('Error in voiceStateUpdate:', e)}
+    }
+});
+
+
+// client.on("voiceStateUpdate", (oldState, newState) => {
+//     let oldV = oldState.channel;
+//     let newV = newState.channel;
+//     const log = client.guilds.cache.get(newState.guild.id).channels.cache.find(chan => chan.name === "📜log📜" && chan.type === "text");
+//     const botlog = client.guilds.cache.get(newState.guild.id).channels.cache.find(chan => chan.name === "🚧bot_log🚧" && chan.type === "text");
+//     if (!log) {return}
+//     if (!botlog) {return}
+//     var embed = new DiscordJS.MessageEmbed().setTitle("Clumsy Logs").setTimestamp()
+//     .setThumbnail(client.users.cache.get(newState.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
+//     if (oldV != newV) {
+//         if (oldV == null) {
+//             embed.setColor(colors.green)
+//             .setDescription(`📥${newState.member} **joined\nchannel:** \`${newV.name}\``)
+//         } else if (newV == null) {
+//             embed.setColor(colors.red)
+//             .setDescription(`📤${newState.member} **left\nchannel:** \`${oldV.name}\``)
+//             botlog.send(`${client.user} delete_channels ${newState.guild.id}`)
+//             // try {client.botcommands.get('delete_channels').run(client, undefined, newState.guild.id)} catch (err) {console.log(err);}
+//             try {client.botcommands.get('delete_channels').run(client, null, newState.guild.id)} catch {}
+//         } else {
+//             embed.setColor(colors.yellow)
+//             .setDescription(`✈️${newState.member} **moved\nfrom:** \`${oldV.name}\` **\nto:** \`${newV.name}\``)
+//         }
+//         log.send(embed);
+//     }
 // });
+
+
 
 client.on('guildMemberAdd', async member => {
     const guild = client.guilds.cache.get(member.guild.id);
@@ -175,7 +208,7 @@ client.on('guildMemberRemove', async member => {
     try {wel_msg = guilds_settings.get(member.guild.id).welcome_message} catch {wel_msg = true}
     if (wel_msg) {
         const embed = new DiscordJS.EmbedBuilder().setTitle("Goodbye").setColor(DiscordJS.Colors.Red).setTimestamp()
-        .setThumbnail(client.users.cache.get(member.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
+npm        .setThumbnail(client.users.cache.get(member.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
         .setDescription(`Goodbye \`${member.user.username}#${member.user.discriminator}\`, have a great time!`)
         main.send({embeds: [embed]});
     }

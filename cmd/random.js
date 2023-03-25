@@ -47,9 +47,9 @@ module.exports = {
         ),
     async execute({interaction, options}) {
         try {
+            await interaction.deferReply()
             const value = options[0].value;
             let response;
-            await interaction.deferReply()
             switch (value) {
                 case 'meme': {response = await sub(["meme", "cursedcomments"], value); break}
                 case 'dog': {response = await sub(["dog", "Cutedogsreddit", "Uglydogs"], value); break}

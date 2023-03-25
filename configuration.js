@@ -4,17 +4,19 @@ const file_path = './config/guilds_settings.json';
 var guilds_settings = {};
 
 exports.get = function(id = null) {
-    if (id) return guilds_settings[id];
+    try {if (id) return guilds_settings[id]} catch {return undefined}
     return guilds_settings;
 }
 
 exports.set = function(guildId,
     welcome_message = true,
-    default_roles = [])
+    default_roles = [],
+    temp_chan_cat = null)
 {
     guilds_settings[guildId] = {
         "welcome_message": welcome_message,
-        "default_roles": default_roles
+        "default_roles": default_roles,
+        "temp_chan_cat": temp_chan_cat
     }
 }
 

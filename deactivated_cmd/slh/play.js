@@ -15,7 +15,7 @@ async function solo_shifumi(client, interaction, game_interaction, p1) {
     var result = await result_shifumi(p1, p2);
     var embed = interaction.message.embeds[0]
     if (result != 'draw') {
-        embed.setColor(result == 'p1' ? colors.green : colors.red ).addField(result == 'p1' ? 'You won!' : 'You lost!', `${p1} vs ${p2}`).setFooter({ text: ""})
+        embed.setColor(result == 'p1' ? DiscordJS.Colors.green : DiscordJS.Colors.red ).addField(result == 'p1' ? 'You won!' : 'You lost!', `${p1} vs ${p2}`).setFooter({ text: ""})
         .addField('Winner:', result == 'p1' ? `${game_interaction.user}` : `${client.user}!`)
         await game_interaction.editReply({ embeds: [embed], components: [] })
         try {client.gamesInteractions.delete(game_interaction.id)} catch {}
