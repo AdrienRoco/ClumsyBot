@@ -8,13 +8,13 @@ exports.get = function(id = null) {
     return guilds_settings;
 }
 
-exports.set = function(guildId, welcome_message = true, welcome_dm = true, default_roles = [], game_roles = [], channels_possition = 1) {
+exports.set = function(guildId,
+    welcome_message = true,
+    default_roles = [])
+{
     guilds_settings[guildId] = {
         "welcome_message": welcome_message,
-        "welcome_dm": welcome_dm,
-        "default_roles": default_roles,
-        "game_roles": game_roles,
-        "temp_chan_pos": channels_possition
+        "default_roles": default_roles
     }
 }
 
@@ -32,7 +32,9 @@ exports.save = async function() {
 }
 
 exports.load = async function() {
-    const rawdata = fs.readFileSync(file_path);
-    const data = JSON.parse(rawdata);
-    guilds_settings = data;
+    try {
+        const rawdata = fs.readFileSync(file_path);
+        const data = JSON.parse(rawdata);
+        guilds_settings = data;
+    } catch {fs.writeFileSync(file_path, "{}", (err) => {if (err) throw err})}
 }

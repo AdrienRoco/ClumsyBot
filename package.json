@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "clean": "node clean.js",
     "test": "nodemon --ignore config/"
   },
   "repository": {
@@ -16,16 +17,16 @@
     "Slash",
     "Bot"
   ],
-  "author": "AdrienRoco",
+  "author": "Adrien Rocourt",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/AdrienRoco/SlashBot/issues"
   },
   "homepage": "https://github.com/AdrienRoco/SlashBot#readme",
   "dependencies": {
-    "ascii-table": "^0.0.9",
-    "discord.js": "^13.6.0",
-    "dotenv": "^16.0.0",
-    "node-fetch": "^2.6.1"
+    "ascii-table": "0.0.9",
+    "discord.js": "14.8.0",
+    "dotenv": "16.0.3",
+    "node-fetch": "2.6.9"
   }
 }

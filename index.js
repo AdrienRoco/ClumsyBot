@@ -1,171 +1,170 @@
+require('dotenv').config({ path: './config/.env' });
 const guilds_settings = require('./configuration.js');
 const temp_channels = require('./channels.js');
 const DiscordJS = require('discord.js');
-const colors = require("./colors.json");
-require('dotenv').config({ path: './config/.env' })
+const fs = require('fs');
+const guild_test_ids = process.env.TEST_IDS.split(',');
+const client = new DiscordJS.Client({ intents: 3276799 });
+const rest = new DiscordJS.REST({ version: '10' }).setToken(process.env.TOKEN);
 
-const guild_test_ids = ['702461452564430948'];
-const client = new DiscordJS.Client({ intents: 32767 });
-
-client.botcommands = new DiscordJS.Collection();
-client.slhcommands = new DiscordJS.Collection();
-client.gamesinteractions = new DiscordJS.Collection();
-["command"].forEach(async handler => {
-    await require(`./handlers/${handler}`)(client);
-});
-
-const get_app = (guildId => {
-    const app = client.api.applications(client.user.id)
-    if (guildId) {app.guilds(guildId)}
-    return app
-})
+// client.botCommands = new DiscordJS.Collection();
+client.Commands = new DiscordJS.Collection();
+// client.gamesInteractions = new DiscordJS.Collection();
 
 client.on('ready', async () => {
-    await guilds_settings.load();
-    await temp_channels.load();
-    try {
-        client.slhcommands.forEach(element => {
-            if (!element.test) {
-                get_app().commands.post({data: {
-                    name: element.name,
-                    description: element.description,
-                    options: element.args,
-                }})
-                console.log(`Loaded ${element.name} as a cmd`);
-            }
-            if (element.test) {
-                guild_test_ids.forEach(id => {
-                    get_app(id).commands.post({data: {
-                        name: element.name,
-                        description: element.description,
-                        options: element.args,
-                    }})
-                })
-                console.log(`Loaded ${element.name} as a test`);
-            }
-        });
-    } catch {console.log("Err in slash loading");}
+    await guilds_settings.load()
+    await temp_channels.load()
 
-    console.log('Getting slash list...');
-    let commands
-    for (i in guild_test_ids) {
-        commands = await get_app(guild_test_ids[i]).commands.get().catch(() => {console.log("no commands")})
-        for (y in commands) {console.log("Test   cmd's", y, [commands[y].id, commands[y].name])}}
-    commands = await get_app().commands.get().catch(() => {console.log("no commands")})
-    for (i in commands) {console.log("Global cmd's", i, [commands[i].id, commands[i].name])}
-
-    client.user.setActivity('you👀', { type: 'WATCHING' })
+    const commands_test = [];
+    const commands_main = [];
+    const commandFiles = fs.readdirSync("./cmd").filter(file => file.endsWith('.js'));
+    for (const file of commandFiles) {
+        const command = require(`./cmd/${file}`);
+        if (command.test) commands_test.push(command.data.toJSON());
+        else commands_main.push(command.data.toJSON());
+        if ('data' in command && 'execute' in command) client.Commands.set(command.data.name, command);
+        else console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+    }
+    await (async () => {
+        try {
+            console.log(`Started refreshing ${commands_test.length} guilds (/) commands.`);
+            guild_test_ids.forEach(async element => {
+                await rest.put(
+                    DiscordJS.Routes.applicationGuildCommands(client.user.id, element),
+                    { body: commands_test },
+                );
+            });
+            console.log(`Started refreshing ${commands_main.length} application (/) commands.`);
+            await rest.put(
+                DiscordJS.Routes.applicationCommands(client.user.id),
+                { body: commands_main },
+            );
+            console.log(`Successfully reloaded all (/) commands.`);
+        } catch (e) {console.error('Error in cmds loading:', e)}
+    })();
+    client.user.setActivity('you👀', { type: DiscordJS.ActivityType.Watching })
     console.log(`\n${client.user.username} Ready\n`)
 })
 
-async function command_reply(interaction, res) {
-    try {
-        if (typeof res == 'string') {
-            await interaction.deleteReply()
-            await interaction.followUp({ content: res, ephemeral: true })
-            return
-        }
-        if (typeof res == 'object') {
-            if (res.ephemeral) {
-                await interaction.deleteReply()
-                await interaction.followUp(res)
-                return
-            } else {
-                await interaction.editReply(res)
-                return
-            }
-        }
-        await interaction.deleteReply()
-        await interaction.followUp({ content: "Unhandled response type, ask admin if persistent", ephemeral: true })
-        throw new Error('Unhandled response type')
-    } catch (e) {console.log('Error in command_reply:', e); return}
-}
-
-client.on('interactionCreate', async (interaction) => {
-    try {
-        var res;
-        // Selection menu management
-        if (interaction.isSelectMenu()) {
-            await interaction.deferReply()
-            res = await client.slhcommands.get(interaction.customId.split('_')[0]).callback({ client, interaction })
-            if (!res) {command_reply(interaction, { content: "Oups, I can't do that. Ask admin if persistent", ephemeral: true }); return}
-            if (res == true) {return}
-        }
-        // Button management
-        else if (interaction.isButton()) {
-            await interaction.deferReply()
-            res = await client.slhcommands.get(interaction.customId.split('_')[0]).callback({ client, interaction })
-            if (!res) {command_reply(interaction, { content: "Oups, I can't do that. Ask admin if persistent", ephemeral: true }); return}
-            if (res == true) {return}
-        }
-        // Slash command management
-        else if (interaction.isCommand()) {
-            if (interaction.commandName != 'nuke') await interaction.deferReply()
-            const args = interaction.options._hoistedOptions.length == 0 ? [''] : interaction.options._hoistedOptions
-            res = await client.slhcommands.get(interaction.commandName).callback({ client, interaction, args })
-            if (!res) {command_reply(interaction, { content: "Oups, I can't do that. Ask admin if persistent", ephemeral: true }); return}
-            if (interaction.commandName == 'nuke') {await interaction.reply({ content: res, ephemeral: true }); return}
-        }
-        command_reply(interaction, res)
-    } catch (e) {console.log('Error in interactionCreate:', e); return command_reply(interaction, { content: "Oups, I can't do that. Ask admin if persistent", ephemeral: true })}
-})
-
-client.on('messageCreate', async message => {
-    try {
-        const clientid1 = `<@${client.user.id}>`
-        const clientid2 = `<@!${client.user.id}>`
-
-        if (!message.content.startsWith(clientid1) && !message.content.startsWith(clientid2)) return;
-        if (message.author.bot) return;
-
-        let args;
-        if      (message.content.startsWith(clientid1)) {args = message.content.slice(clientid1.length).trim().split(/ +/g);}
-        else if (message.content.startsWith(clientid2)) {args = message.content.slice(clientid2.length).trim().split(/ +/g);}
-
-        let commandName = args.shift().toLowerCase();
-        if (!commandName) {message.reply({ content: "What the f*** do you want???" }).catch(); return;}
-
-        const botcommand = client.botcommands.get(commandName)
-
-        if (!botcommand) {message.reply({ content: `**${commandName}** is not a command` }).catch(); return;}
-        if (botcommand) try {
-            botcommand.run({ client, message, args })
-            message.delete()
-        } catch {return}
-    } catch (e) {console.log('Error in messageCreate:', e); return}
-})
-
-client.on("voiceStateUpdate", async (oldMember, newMember) => {
-    if (oldMember.channel != null && oldMember.channel != newMember.channel && oldMember.channel.members.size == 0)
-        try {await client.botcommands.get('delete').run({ client })} catch {}
+client.on(DiscordJS.Events.InteractionCreate, async interaction => {
+	if (!interaction.isChatInputCommand()) return;
+	const command = interaction.client.Commands.get(interaction.commandName);
+	if (!command) {
+		console.error(`No command matching ${interaction.commandName} was found.`);
+		return;
+	}
+	try {
+        const options = interaction.options._hoistedOptions;
+		await command.execute({client, interaction, options});
+	} catch (error) {
+		console.error(`Error executing ${interaction.commandName}`);
+		console.error(error);
+	}
 });
+
+// async function command_reply(interaction, res) {
+//     try {
+//         if (typeof res == 'string') {
+//             await interaction.deleteReply()
+//             await interaction.followUp({ content: res, ephemeral: true })
+//             return
+//         }
+//         if (typeof res == 'object') {
+//             if (res.ephemeral) {
+//                 await interaction.deleteReply()
+//                 await interaction.followUp(res)
+//                 return
+//             } else {
+//                 await interaction.editReply(res)
+//                 return
+//             }
+//         }
+//         await interaction.deleteReply()
+//         await interaction.followUp({ content: "Unhandled response type, ask admin if persistent", ephemeral: true })
+//         throw new Error('Unhandled response type')
+//     } catch (e) {console.error('Error in command_reply:', e); return}
+// }
+
+// client.on('interactionCreate', async (interaction) => {
+//     try {
+//         console.log(interaction.commandName)
+//         var res;
+//         // Selection menu management
+//         if (interaction.isStringSelectMenu()) {
+//             await interaction.deferReply()
+//             res = await client.Commands.get(interaction.commandName).execute(interaction)
+//             if (!res) {command_reply(interaction, { content: "Oups, I can't do that. Ask admin if persistent", ephemeral: true }); return}
+//             if (res == true) {return}
+//         }
+//         // Button management
+//         else if (interaction.isButton()) {
+//             await interaction.deferReply()
+//             res = await client.slhCommands.get(interaction.customId.split('_')[0]).callback({ client, interaction })
+//             if (!res) {command_reply(interaction, { content: "Oups, I can't do that. Ask admin if persistent", ephemeral: true }); return}
+//             if (res == true) {return}
+//         }
+//         // Slash command management
+//         else if (interaction.isCommand()) {
+//             if (interaction.commandName != 'nuke') await interaction.deferReply()
+//             const args = interaction.options._hoistedOptions.length == 0 ? [''] : interaction.options._hoistedOptions
+//             res = await client.slhCommands.get(interaction.commandName).callback({ client, interaction, args })
+//             if (!res) {command_reply(interaction, { content: "Oups, I can't do that. Ask admin if persistent", ephemeral: true }); return}
+//             if (interaction.commandName == 'nuke') {await interaction.reply({ content: res, ephemeral: true }); return}
+//         }
+//         command_reply(interaction, res)
+//     } catch (e) {console.error('Error in interactionCreate:', e); return command_reply(interaction, { content: "Oups, I can't do that. Ask admin if persistent", ephemeral: true })}
+// })
+
+// client.on('messageCreate', async message => {
+//     try {
+//         const clientId1 = `<@${client.user.id}>`
+//         const clientId2 = `<@!${client.user.id}>`
+
+//         if (!message.content.startsWith(clientId1) && !message.content.startsWith(clientId2)) return;
+//         if (message.author.bot) return;
+
+//         let args;
+//         if      (message.content.startsWith(clientId1)) {args = message.content.slice(clientId1.length).trim().split(/ +/g);}
+//         else if (message.content.startsWith(clientId2)) {args = message.content.slice(clientId2.length).trim().split(/ +/g);}
+
+//         let commandName = args.shift().toLowerCase();
+//         if (!commandName) {message.reply({ content: "What the f*** do you want???" }).catch(); return;}
+
+//         const botCommand = client.botCommands.get(commandName)
+
+//         if (!botCommand) {message.reply({ content: `**${commandName}** is not a command` }).catch(); return;}
+//         if (botCommand) try {
+//             botCommand.run({ client, message, args })
+//             message.delete()
+//         } catch {return}
+//     } catch (e) {console.error('Error in messageCreate:', e); return}
+// })
+
+// client.on("voiceStateUpdate", async (oldMember, newMember) => {
+//     if (oldMember.channel != null && oldMember.channel != newMember.channel && oldMember.channel.members.size == 0)
+//         try {await client.botCommands.get('delete').run({ client })} catch {}
+// });
 
 client.on('guildMemberAdd', async member => {
     const guild = client.guilds.cache.get(member.guild.id);
     const main = guild.channels.cache.get(guild.systemChannelId);
-    var wel_msg, dm_msg, roles_list;
+    var wel_msg, roles_list;
     try {wel_msg = guilds_settings.get(member.guild.id).welcome_message} catch {wel_msg = true}
-    try {dm_msg = guilds_settings.get(member.guild.id).welcome_dm} catch {dm_msg = true}
     try {roles_list = guilds_settings.get(member.guild.id).default_roles} catch {roles_list = []}
     if (wel_msg && main) {
-        const wel = new DiscordJS.MessageEmbed().setTitle("Welcome").setColor(colors.green).setTimestamp()
+        const embed = new DiscordJS.EmbedBuilder().setTitle("Welcome").setColor(DiscordJS.Colors.DarkGreen).setTimestamp()
         .setThumbnail(client.users.cache.get(member.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
         .setDescription(`Hey ${member}, welcome to **${member.guild}**!`)
-        main.send({ embeds: [wel] });
+        main.send({ embeds: [embed] });
     }
-    if (!member.user.bot) {
-        if (roles_list[0]) {
-            for (i in roles_list) {
-                if (guild.roles.cache.map(role => role).filter(role => role.tags && role.tags.botId == client.user.id)[0].rawPosition > guild.roles.cache.get(roles_list[i]).rawPosition)
-                    try {await member.roles.add(guild.roles.cache.get(roles_list[i]))} catch (e) {console.log('Error in GuildMemberAdd:', e)}
-            }
-        }
-        if (dm_msg) {
-            member.createDM().then(channel => {
-                channel.send({ content: `Bienvenu ${member} dans mon serveur **${member.guild}** !!😄\nIci tu es le bienvenu avec tous tes amis.😜\nTu peux inviter qui tu veux, quand tu veux!🤗\nSi tu veux faire un vocal, utilise les commandes / et tu auras un channel rien que pour toi et tes potes!👍` });
-            })
-        }
-    }
+    // if (!member.user.bot) {
+    //     if (roles_list[0]) {
+    //         for (i in roles_list) {
+    //             if (guild.roles.cache.map(role => role).filter(role => role.tags && role.tags.botId == client.user.id)[0].rawPosition > guild.roles.cache.get(roles_list[i]).rawPosition)
+    //                 try {await member.roles.add(guild.roles.cache.get(roles_list[i]))} catch (e) {console.log('Error in GuildMemberAdd:', e)}
+    //         }
+    //     }
+    // }
 })
 
 client.on('guildMemberRemove', async member => {
@@ -175,7 +174,7 @@ client.on('guildMemberRemove', async member => {
     var wel_msg;
     try {wel_msg = guilds_settings.get(member.guild.id).welcome_message} catch {wel_msg = true}
     if (wel_msg) {
-        const embed = new DiscordJS.MessageEmbed().setTitle("Goodbye").setColor(colors.red).setTimestamp()
+        const embed = new DiscordJS.EmbedBuilder().setTitle("Goodbye").setColor(DiscordJS.Colors.Red).setTimestamp()
         .setThumbnail(client.users.cache.get(member.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
         .setDescription(`Goodbye \`${member.user.username}#${member.user.discriminator}\`, have a great time!`)
         main.send({embeds: [embed]});
