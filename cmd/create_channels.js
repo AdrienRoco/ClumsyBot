@@ -2,7 +2,7 @@ const guilds_settings = require('../configuration.js');
 const temp_channels = require('../channels.js');
 const DiscordJS = require('discord.js');
 
-async function create_channels(guild, author) {
+async function create_channels(guild, author, limit = null) {
     try {
         const name = author.username;
         const category = guilds_settings.get(guild.id).temp_chan_cat;
@@ -14,8 +14,13 @@ async function create_channels(guild, author) {
         .setDescription("There is your own channel!\n`Rules?`\n**Nope!** this channel is temporary.\nEverything you say here will be deleted\nwhen you all leave the channel!")
         .addFields([{name: '`Channel owner:`', value: `${author}`, inline: true}])
 
-        const createdVoice = await guild.channels.create({name: `💢${name}'s💢`, type: DiscordJS.ChannelType.GuildVoice, parent: category, nsfw: true})
-        .then(channel => {return channel})
+        const createdVoice = await guild.channels.create({
+            name: `💢${name}'s💢`,
+            type: DiscordJS.ChannelType.GuildVoice,
+            parent: category,
+            userLimit: limit,
+            nsfw: true,
+        }).then(channel => {return channel})
         try {await createdVoice.send({ embeds: [embed]} )} catch {}
         try {const m = await createdVoice.send({ content: `${author}` }); setTimeout(() => m.delete(), 100)} catch {}
         try {await guild.members.cache.get(author.id).voice.setChannel(createdVoice.id)} catch {}
@@ -25,7 +30,7 @@ async function create_channels(guild, author) {
     } catch (e) {console.error('Error in /create normal:', e); return false}
 }
 
-async function create_private_channels(guild, author) {
+async function create_private_channels(guild, author, limit = null) {
     try {
         const name = author.username;
         const category = guilds_settings.get(guild.id).temp_chan_cat;
@@ -37,16 +42,20 @@ async function create_private_channels(guild, author) {
         .setDescription("There is your own private channel!\n`Rules?`\n**Nope!** this channel is temporary.\nEverything you say here will be deleted\nwhen you all leave the channel!")
         .addFields([{name: '`How can you invite a user?`', value: `use /invite and choose a user or a role`, inline: true}, {name: '`Channel owner:`', value: `${author}`, inline: true}])
 
-        const createdVoice = await guild.channels.create({name: `🔒💢${name}'s channels💢🔒`, type: DiscordJS.ChannelType.GuildVoice, parent: category, nsfw: true, permissionOverwrites: [
-            {
+        const createdVoice = await guild.channels.create({
+            name: `🔒💢${name}'s💢🔒`,
+            type: DiscordJS.ChannelType.GuildVoice,
+            parent: category,
+            userLimit: limit,
+            nsfw: true,
+            permissionOverwrites: [{
                 id: guild.roles.everyone,
                 deny: BigInt(1024)
             }, {
                 id: author.id,
                 allow: BigInt(1024)
             }
-        ]})
-        .then(channel => {return channel})
+        ]}).then(channel => {return channel})
         try {await createdVoice.send({ embeds: [embed]} )} catch {}
         try {const m = await createdVoice.send({ content: `${author}` }); setTimeout(() => m.delete(), 100)} catch {}
         try {await guild.members.cache.get(author.id).voice.setChannel(createdVoice.id)} catch {}
@@ -76,26 +85,27 @@ module.exports = {
             .setMaxValue(99)),
     async execute({interaction, options}) {
         try {
+            const data = [options[0].value, options[1] ? options[1].value : null];
             if (interaction) {
                 await interaction.deferReply({ephemeral: true});
-                switch (options[0].value) {
+                switch (data[0]) {
                 case 'normal':
-                    if (await create_channels(interaction.member.guild, interaction.user)) interaction.editReply({content: 'Ok, done'})
+                    if (await create_channels(interaction.member.guild, interaction.user, data[1])) interaction.editReply({content: 'Ok, done'})
                     else interaction.editReply({content: `Oups, something went wrong`})
                     break;
                 case 'priv':
-                    if (await create_private_channels(interaction.member.guild, interaction.user)) interaction.editReply({content: 'Ok, done'})
+                    if (await create_private_channels(interaction.member.guild, interaction.user, data[1])) interaction.editReply({content: 'Ok, done'})
                     else interaction.editReply({content: `Oups, something went wrong`})
                     break;
                     default: interaction.editReply({content: `Oups, something went wrong`})
                 }
             } else {
-                switch (options[0].value) {
+                switch (data[0]) {
                 case 'normal':
-                    await create_channels(options[0].guild, options[0].author)
+                    await create_channels(options[0].guild, options[0].user, data[1])
                     break;
                 case 'priv':
-                    // create private channel
+                    await create_private_channels(options[0].guild, options[0].user, data[1])
                     break;
                 default: throw new Error('Invalid type');
                 }

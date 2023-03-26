@@ -11,12 +11,16 @@ exports.get = function(id = null) {
 exports.set = function(guildId,
     welcome_message = true,
     default_roles = [],
-    temp_chan_cat = null)
+    temp_chan_cat = null,
+    temp_chan_create = null,
+    temp_priv_create = null)
 {
     guilds_settings[guildId] = {
         "welcome_message": welcome_message,
         "default_roles": default_roles,
-        "temp_chan_cat": temp_chan_cat
+        "temp_chan_cat": temp_chan_cat,
+        "temp_chan_create": temp_chan_create,
+        "temp_priv_create": temp_priv_create
     }
 }
 
