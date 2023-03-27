@@ -3,15 +3,15 @@ const guilds_settings = require('./configuration.js');
 const temp_channels = require('./channels.js');
 const DiscordJS = require('discord.js');
 const fs = require('fs');
+const wait = require('node:timers/promises').setTimeout;
 const guild_test_ids = process.env.TEST_IDS.split(',');
 const client = new DiscordJS.Client({ intents: 3276799 });
 const rest = new DiscordJS.REST({ version: '10' }).setToken(process.env.TOKEN);
 
 client.Commands = new DiscordJS.Collection();
 client.CacheInteraction = new DiscordJS.Collection();
-// client.gamesInteractions = new DiscordJS.Collection();
 
-client.on('ready', async () => {
+client.on(DiscordJS.Events.ClientReady, async () => {
     await guilds_settings.load()
     await temp_channels.load()
 
@@ -46,23 +46,7 @@ client.on('ready', async () => {
     console.log(`\n${client.user.username} Ready\n`)
 })
 
-// client.on(DiscordJS.Events.InteractionCreate, async interaction => {
-// 	if (!interaction.isChatInputCommand()) return;
-// 	const command = interaction.client.Commands.get(interaction.commandName);
-// 	if (!command) {
-// 		console.error(`No command matching ${interaction.commandName} was found.`);
-// 		return;
-// 	}
-// 	try {
-//         const options = interaction.options._hoistedOptions;
-// 		await command.execute({client, interaction, options});
-// 	} catch (error) {
-// 		console.error(`Error executing ${interaction.commandName}`);
-// 		console.error(error);
-// 	}
-// });
-
-client.on('interactionCreate', async (interaction) => {
+client.on(DiscordJS.Events.InteractionCreate, async interaction => {
     try {
         // Slash command management
         if (interaction.isCommand()) {
@@ -86,7 +70,7 @@ client.on('interactionCreate', async (interaction) => {
     } catch (e) {console.error('Error in interactionCreate:', e)}
 })
 
-client.on('messageCreate', async message => {
+client.on(DiscordJS.Events.MessageCreate, async message => {
     try {
         if (message.author.bot) return;
         if (message.content.toLowerCase().replace(/(\?|\!|\s)+$/, '').endsWith('quoi')) {message.reply({ content: 'feur' }); return}
@@ -104,8 +88,7 @@ client.on('messageCreate', async message => {
     } catch (e) {console.error('Error in messageCreate:', e)}
 })
 
-const wait = require('node:timers/promises').setTimeout;
-client.on("voiceStateUpdate", async (oldState, newState) => {
+client.on(DiscordJS.Events.VoiceStateUpdate, async (oldState, newState) => {
     if (oldState.channel != null && oldState.channel != newState.channel && oldState.channel.members.size == 0) {
         await wait(5000);
         try {await client.Commands.get('delete').execute({ client })} catch (e) {console.error('Error in voiceStateUpdate:', e)}
@@ -124,7 +107,7 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
     }
 });
 
-client.on('guildMemberAdd', async member => {
+client.on(DiscordJS.Events.GuildMemberAdd, async member => {
     const guild = client.guilds.cache.get(member.guild.id);
     const main = guild.channels.cache.get(guild.systemChannelId);
     var wel_msg, roles_list;
@@ -144,7 +127,7 @@ client.on('guildMemberAdd', async member => {
     }
 })
 
-client.on('guildMemberRemove', async member => {
+client.on(DiscordJS.Events.GuildMemberRemove, async member => {
     const guild = client.guilds.cache.get(member.guild.id);
     const main = guild.channels.cache.get(guild.systemChannelId);
     if (!main) {return}
