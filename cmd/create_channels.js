@@ -70,6 +70,7 @@ module.exports = {
     data: new DiscordJS.SlashCommandBuilder()
         .setName('create')
         .setDescription('Create a new channel')
+        .setDMPermission(false)
         .addStringOption(option => option
             .setName('type')
             .setDescription('Create a normal or a private channel')
