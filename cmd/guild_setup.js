@@ -85,12 +85,12 @@ module.exports = {
             } else if (interaction.isStringSelectMenu()) {
                 await interaction.deferReply({ephemeral: true})
                 await client.CacheInteraction.get(interaction.message.interaction.id).editReply({components: []})
-                let rolelist = guilds_settings.get(guildId).default_roles
+                let role_list = guilds_settings.get(guildId).default_roles
                 for (i in interaction.values) {
-                    roleid = interaction.member.guild.roles.cache.find(r => r.name == interaction.values[i]).id;
-                    rolelist.push(roleid);
+                    role_id = interaction.member.guild.roles.cache.find(r => r.name == interaction.values[i]).id;
+                    role_list.push(role_id);
                 }
-                guilds_settings.modify(guildId, 'default_roles', rolelist)
+                guilds_settings.modify(guildId, 'default_roles', role_list)
                 await guilds_settings.save()
                 await interaction.deleteReply()
                 await client.CacheInteraction.get(interaction.message.interaction.id).editReply({embeds: [await display_manager(guildId, interaction.guild)]})

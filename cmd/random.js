@@ -2,15 +2,15 @@ const fetch = require("node-fetch");
 const DiscordJS = require("discord.js");
 
 function get_img(subs) {
-    const extention_list = [".jpg", ".jpeg", ".png", ".gif", ".mp4"];
+    const extension_list = [".jpg", ".jpeg", ".png", ".gif", ".mp4"];
     temp = [];
     urls = [];
     for (i in subs)
         for (y in subs[i].data.children)
             temp.push(subs[i].data.children[y].data.url);
     for (i in temp)
-        for (y in extention_list)
-            if (temp[i].endsWith(extention_list[y])) urls.push(temp[i]);
+        for (y in extension_list)
+            if (temp[i].endsWith(extension_list[y])) urls.push(temp[i]);
     return urls[Math.floor(Math.random() * urls.length)];
 }
 
