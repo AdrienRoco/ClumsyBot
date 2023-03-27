@@ -23,7 +23,7 @@ module.exports = {
                 }
             }
             await temp_channels.save();
-            if (interaction) await interaction.editReply({content: 'Done!'});
+            try {if (interaction) await interaction.editReply({content: 'Done!'})} catch {}
         } catch (e) {console.error('Error in /delete:', e)}
     }
 }

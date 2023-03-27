@@ -40,7 +40,7 @@ async function create_private_channels(guild, author, limit = null) {
         .setTitle("Hi there!")
         .setFooter({ text: "Created" })
         .setDescription("There is your own private channel!\n`Rules?`\n**Nope!** this channel is temporary.\nEverything you say here will be deleted\nwhen you all leave the channel!")
-        .addFields([{name: '`How can you invite a user?`', value: `use /invite and choose a user or a role`, inline: true}, {name: '`Channel owner:`', value: `${author}`, inline: true}])
+        .addFields([{name: '`How can you invite a user?`', value: `use \`/invite\` and choose a user or a role`}, {name: '`Channel owner:`', value: `${author}`}])
 
         const createdVoice = await guild.channels.create({
             name: `🔒💢${name}'s💢🔒`,
@@ -92,13 +92,13 @@ module.exports = {
                 switch (data[0]) {
                 case 'normal':
                     if (await create_channels(interaction.member.guild, interaction.user, data[1])) interaction.editReply({content: 'Ok, done'})
-                    else interaction.editReply({content: `Oups, something went wrong`})
+                    else await interaction.editReply({content: `Oups, something went wrong`})
                     break;
                 case 'priv':
                     if (await create_private_channels(interaction.member.guild, interaction.user, data[1])) interaction.editReply({content: 'Ok, done'})
-                    else interaction.editReply({content: `Oups, something went wrong`})
+                    else await interaction.editReply({content: `Oups, something went wrong`})
                     break;
-                    default: interaction.editReply({content: `Oups, something went wrong`})
+                    default: await interaction.editReply({content: `Oups, something went wrong`})
                 }
             } else {
                 switch (data[0]) {

@@ -4,7 +4,8 @@ const file_path = './config/temp_ids.json';
 var temp_channels = {};
 
 exports.get = function(id = null) {
-    try {if (id) return temp_channels[id]} catch {return undefined}
+    if (id && id in temp_channels) return temp_channels[id]
+    else if (id) return null;
     return temp_channels;
 }
 

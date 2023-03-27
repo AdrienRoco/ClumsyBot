@@ -122,7 +122,7 @@ client.on(DiscordJS.Events.GuildMemberAdd, async member => {
     if (!member.user.bot && roles_list[0]) {
         for (i in roles_list) {
             if (guild.roles.cache.map(role => role).filter(role => role.tags && role.tags.botId == client.user.id)[0].rawPosition > guild.roles.cache.get(roles_list[i]).rawPosition)
-                try {await member.roles.add(guild.roles.cache.get(roles_list[i]))} catch (e) {console.log('Error in GuildMemberAdd:', e)}
+                try {await member.roles.add(guild.roles.cache.get(roles_list[i]))} catch (e) {console.error('Error in GuildMemberAdd:', e)}
         }
     }
 })

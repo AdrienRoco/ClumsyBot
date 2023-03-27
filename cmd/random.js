@@ -43,8 +43,7 @@ module.exports = {
                 {name: 'meme', value: 'meme'},
                 {name: 'dog', value: 'dog'},
                 {name: 'cat', value: 'cat'},
-                {name: 'rat', value: 'rat'})
-        ),
+                {name: 'rat', value: 'rat'})),
     async execute({interaction, options}) {
         try {
             await interaction.deferReply()

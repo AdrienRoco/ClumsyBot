@@ -414,6 +414,6 @@ module.exports = {
                     }
                 }
             }
-        } catch (e) {console.log('Error in /play:', e); return "Oups, I can't do that"}
+        } catch (e) {console.error('Error in /play:', e); return "Oups, I can't do that"}
     }
 }

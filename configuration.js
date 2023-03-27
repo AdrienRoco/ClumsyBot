@@ -4,7 +4,8 @@ const file_path = './config/guilds_settings.json';
 var guilds_settings = {};
 
 exports.get = function(id = null) {
-    try {if (id) return guilds_settings[id]} catch {return undefined}
+    if (id && id in guilds_settings) return guilds_settings[id]
+    else if (id) return null;
     return guilds_settings;
 }
 

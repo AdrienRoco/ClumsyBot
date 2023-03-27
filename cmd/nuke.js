@@ -17,7 +17,7 @@ module.exports = {
         try {
             let number = options[0] ? options[0].value : 100;
             await interaction.member.guild.channels.cache.get(interaction.channelId).bulkDelete(number, true)
-            .then(del => interaction.reply({content: `I deleted ${del.size} messages.`, ephemeral: true}));
+            .then(async del => await interaction.reply({content: `I deleted ${del.size} messages.`, ephemeral: true}));
         } catch (e) {console.error('Error in /nuke:', e)}
     },
 }
