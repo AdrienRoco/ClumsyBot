@@ -58,5 +58,5 @@ module.exports = {
             }
             await interaction.editReply(typeof response == 'string' ? response : {embeds: [response]});
         } catch (e) {console.error('Error in /random:', e)}
-    },
+    }
 }

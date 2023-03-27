@@ -19,5 +19,5 @@ module.exports = {
             await interaction.member.guild.channels.cache.get(interaction.channelId).bulkDelete(number, true)
             .then(async del => await interaction.reply({content: `I deleted ${del.size} messages.`, ephemeral: true}));
         } catch (e) {console.error('Error in /nuke:', e)}
-    },
+    }
 }

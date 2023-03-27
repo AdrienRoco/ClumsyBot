@@ -112,5 +112,5 @@ module.exports = {
                 }
             }
         } catch (e) {console.error('Error in /create:', e)}
-    },
+    }
 }

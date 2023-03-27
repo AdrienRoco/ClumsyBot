@@ -34,5 +34,5 @@ module.exports = {
             if (!temp_channels.get(interaction.channelId) || !temp_channels.get(interaction.channelId).private) {await interaction.editReply({content: 'You are not in a private channel'}); return}
             await invite(client, interaction, options[0].user ? options[0].user : options[0].role, options[1].value)
         } catch (e) {console.error('Error in /invite:', e)}
-    },
+    }
 }
