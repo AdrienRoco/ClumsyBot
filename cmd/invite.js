@@ -15,7 +15,7 @@ async function invite(client, interaction, mention, ping) {
 }
 
 module.exports = {
-    test: true,
+    test: false,
     data: new DiscordJS.SlashCommandBuilder()
         .setName('invite')
         .setDescription('Invite someone in you\'r private channel')

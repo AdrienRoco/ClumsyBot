@@ -30,7 +30,7 @@ async function sub(sub_list, arg) {
 }
 
 module.exports = {
-    test: true,
+    test: false,
     data: new DiscordJS.SlashCommandBuilder()
         .setName('random')
         .setDescription('Send random shit')

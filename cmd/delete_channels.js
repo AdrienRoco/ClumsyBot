@@ -2,7 +2,7 @@ const temp_channels = require('../channels.js');
 const DiscordJS = require('discord.js');
 
 module.exports = {
-    test: true,
+    test: false,
     data: new DiscordJS.SlashCommandBuilder()
         .setName('delete')
         .setDescription('Delete empty temp channels')

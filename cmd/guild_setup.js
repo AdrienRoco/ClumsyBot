@@ -23,7 +23,7 @@ async function display_manager(guildId, guild) {
 }
 
 module.exports = {
-    test: true,
+    test: false,
     data: new DiscordJS.SlashCommandBuilder()
         .setName('setup')
         .setDescription('Setup the bot for your guild')

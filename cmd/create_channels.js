@@ -66,7 +66,7 @@ async function create_private_channels(guild, author, limit = null) {
 }
 
 module.exports = {
-    test: true,
+    test: false,
     data: new DiscordJS.SlashCommandBuilder()
         .setName('create')
         .setDescription('Create a new channel')

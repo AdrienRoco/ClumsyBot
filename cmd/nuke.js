@@ -1,7 +1,7 @@
 const DiscordJS = require('discord.js');
 
 module.exports = {
-    test: true,
+    test: false,
     data: new DiscordJS.SlashCommandBuilder()
         .setName('nuke')
         .setDescription('Delete multiple messages')
