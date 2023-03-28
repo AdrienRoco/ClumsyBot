@@ -54,12 +54,8 @@ client.on(DiscordJS.Events.InteractionCreate, async interaction => {
             const options = interaction.options._hoistedOptions;
             await command.execute({client, interaction, options});
         }
-        // Selection menu management
-        else if (interaction.isStringSelectMenu()) {
-            await client.Commands.get(interaction.message.interaction.commandName).execute({client, interaction})
-        }
-        // Button management
-        else if (interaction.isButton()) {
+        // Selection menu and button management
+        else if (interaction.isStringSelectMenu() || interaction.isButton()) {
             await client.Commands.get(interaction.message.interaction.commandName).execute({client, interaction})
         }
     } catch (e) {console.error('Error in interactionCreate:', e)}

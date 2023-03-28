@@ -1,4 +1,4 @@
-const guilds_settings = require('../../configuration.js');
+const guilds_settings = require('../configuration.js');
 const colors = require("../../colors.json");
 const types = require("../../arg_type.json");
 const discord = require("discord.js");
