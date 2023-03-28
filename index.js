@@ -9,7 +9,7 @@ const client = new DiscordJS.Client({ intents: 3276799 });
 const rest = new DiscordJS.REST({ version: '10' }).setToken(process.env.TOKEN);
 
 client.Commands = new DiscordJS.Collection();
-client.CacheInteraction = new DiscordJS.Collection();
+client.CacheInteractions = new DiscordJS.Collection();
 
 client.on(DiscordJS.Events.ClientReady, async () => {
     await guilds_settings.load()
@@ -52,21 +52,16 @@ client.on(DiscordJS.Events.InteractionCreate, async interaction => {
         if (interaction.isCommand()) {
             const command = client.Commands.get(interaction.commandName);
             const options = interaction.options._hoistedOptions;
-            if (!command) {console.error(`No command matching ${interaction.commandName} was found.`); return}
             await command.execute({client, interaction, options});
         }
         // Selection menu management
-        if (interaction.isStringSelectMenu()) {
+        else if (interaction.isStringSelectMenu()) {
             await client.Commands.get(interaction.message.interaction.commandName).execute({client, interaction})
-            return
         }
         // Button management
-        // else if (interaction.isButton()) {
-        //     await interaction.deferReply()
-        //     result = await client.slhCommands.get(interaction.customId.split('_')[0]).callback({ client, interaction })
-        //     if (!result) {command_reply(interaction, { content: "Oups, I can't do that. Ask admin if persistent", ephemeral: true }); return}
-        //     if (result == true) {return}
-        // }
+        else if (interaction.isButton()) {
+            await client.Commands.get(interaction.message.interaction.commandName).execute({client, interaction})
+        }
     } catch (e) {console.error('Error in interactionCreate:', e)}
 })
 

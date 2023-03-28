@@ -66,7 +66,7 @@ module.exports = {
                     if (options[element]["name"] == "default_roles") {
                         if (options[element]["value"] == "clear") guilds_settings.modify(guildId, "default_roles", [])
                         if (options[element]["value"] == "add") {
-                            client.CacheInteraction.set(interaction.id, interaction)
+                            client.CacheInteractions.set(interaction.id, interaction)
                             const row = new DiscordJS.ActionRowBuilder()
                             .addComponents(
                                 new DiscordJS.StringSelectMenuBuilder()
@@ -84,7 +84,7 @@ module.exports = {
                 await interaction.editReply({embeds: [await display_manager(guildId, interaction.guild)]})
             } else if (interaction.isStringSelectMenu()) {
                 await interaction.deferReply({ephemeral: true})
-                await client.CacheInteraction.get(interaction.message.interaction.id).editReply({components: []})
+                await client.CacheInteractions.get(interaction.message.interaction.id).editReply({components: []})
                 let role_list = guilds_settings.get(guildId).default_roles
                 for (i in interaction.values) {
                     role_id = interaction.member.guild.roles.cache.find(r => r.name == interaction.values[i]).id;
@@ -93,8 +93,8 @@ module.exports = {
                 guilds_settings.modify(guildId, 'default_roles', role_list)
                 await guilds_settings.save()
                 await interaction.deleteReply()
-                await client.CacheInteraction.get(interaction.message.interaction.id).editReply({embeds: [await display_manager(guildId, interaction.guild)]})
-                await client.CacheInteraction.delete(interaction.message.interaction.id)
+                await client.CacheInteractions.get(interaction.message.interaction.id).editReply({embeds: [await display_manager(guildId, interaction.guild)]})
+                await client.CacheInteractions.delete(interaction.message.interaction.id)
             }
         } catch (e) {console.error('Error in /setup:', e)}
     }
