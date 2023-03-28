@@ -1,4 +1,4 @@
-const guilds_settings = require('../../configuration.js');
+const guilds_settings = require('../configuration.js');
 const colors = require("../../colors.json");
 const types = require("../../arg_type.json");
 const discord = require("discord.js");
@@ -22,7 +22,7 @@ async function roles_manager(client, interaction) {
             }
         else return false
         return true
-    } catch (e) {console.log('Error in /roles:', e); return false}
+    } catch (e) {console.error('Error in /roles:', e); return false}
 }
 
 function create_options(list, guild) {
@@ -111,6 +111,6 @@ module.exports = {
                 return {content: `${args[0].value ? 'Add' : 'Remove'} your roles`, components: [row], ephemeral: true};
             }
             throw new Error('Unhandled response type')
-        } catch (e) {console.log('Error in /games:', e); return "Oups, I can't do that"}
+        } catch (e) {console.error('Error in /games:', e); return "Oups, I can't do that"}
     },
 }

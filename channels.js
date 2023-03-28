@@ -4,7 +4,8 @@ const file_path = './config/temp_ids.json';
 var temp_channels = {};
 
 exports.get = function(id = null) {
-    if (id) return temp_channels[id];
+    if (id && id in temp_channels) return temp_channels[id]
+    else if (id) return null;
     return temp_channels;
 }
 
@@ -12,16 +13,14 @@ exports.set = function(data) {
     temp_channels = data;
 }
 
-exports.add = function(categoryId, textId, voiceId, private = false) {
-    temp_channels[categoryId] = {
-        "text": textId,
-        "voice": voiceId,
+exports.add = function(voiceId, private = false) {
+    temp_channels[voiceId] = {
         "private": private
     }
 }
 
-exports.remove = function(categoryId) {
-    delete temp_channels[categoryId];
+exports.remove = function(voiceId) {
+    delete temp_channels[voiceId];
 }
 
 exports.save = async function() {
@@ -30,7 +29,9 @@ exports.save = async function() {
 }
 
 exports.load = async function() {
-    const rawdata = fs.readFileSync(file_path);
-    const data = JSON.parse(rawdata);
-    temp_channels = data;
+    try {
+        const rawdata = fs.readFileSync(file_path);
+        const data = JSON.parse(rawdata);
+        temp_channels = data;
+    } catch {fs.writeFileSync(file_path, "{}", (err) => {if (err) throw err})}
 }
