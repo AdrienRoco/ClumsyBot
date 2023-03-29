@@ -64,8 +64,8 @@ client.on(DiscordJS.Events.InteractionCreate, async interaction => {
 client.on(DiscordJS.Events.MessageCreate, async message => {
     try {
         if (message.author.bot) return;
-        if (message.content.toLowerCase().replace(/(\?|\!|\s)+$/, '').endsWith('quoi')) {message.reply({ content: 'feur' }); return}
-        if (message.content.toLowerCase().replace(/(\?|\!|\s)+$/, '').endsWith('hein')) {message.reply({ content: 'deux' }); return}
+        if (message.content.toLowerCase().replace(/(\?|\!|\.|\,|\s)+$/, '').endsWith('quoi')) {message.reply({ content: 'feur' }); return}
+        if (message.content.toLowerCase().replace(/(\?|\!|\.|\,|\s)+$/, '').endsWith('hein')) {message.reply({ content: 'deux' }); return}
 
         const clientId1 = `<@${client.user.id}>`
         const clientId2 = `<@!${client.user.id}>`

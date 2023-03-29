@@ -380,6 +380,7 @@ async function start_tictactoe(client, interaction, options) {
                 .setLabel('Nope')
                 .setStyle(DiscordJS.ButtonStyle.Danger),
         )
+        try {const m = await interaction.channel.send({ content: `${options[1].member}` }); setTimeout(() => m.delete(), 100)} catch {}
         await interaction.editReply({embeds: [embed], components: [row]})
     }
 }
