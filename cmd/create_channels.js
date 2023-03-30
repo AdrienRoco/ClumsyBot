@@ -5,7 +5,7 @@ const DiscordJS = require('discord.js');
 async function create_channels(guild, author, limit = null) {
     try {
         const name = author.username;
-        const category = guilds_settings.get(guild.id).temp_chan_cat;
+        const category = guild.channels.cache.get(guilds_settings.get(guild.id).temp_chan_cat) ? guilds_settings.get(guild.id).temp_chan_cat : null;
         const embed = new DiscordJS.EmbedBuilder()
         .setColor(DiscordJS.Colors.Aqua).setTimestamp()
         .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))
@@ -33,7 +33,7 @@ async function create_channels(guild, author, limit = null) {
 async function create_private_channels(guild, author, limit = null) {
     try {
         const name = author.username;
-        const category = guilds_settings.get(guild.id).temp_chan_cat;
+        const category = guild.channels.cache.get(guilds_settings.get(guild.id).temp_chan_cat) ? guilds_settings.get(guild.id).temp_chan_cat : null;
         const embed = new DiscordJS.EmbedBuilder()
         .setColor(DiscordJS.Colors.Aqua).setTimestamp()
         .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))

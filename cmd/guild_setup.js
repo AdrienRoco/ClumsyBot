@@ -12,11 +12,16 @@ async function display_manager(guildId, guild) {
     try {
         const embed = new DiscordJS.EmbedBuilder().setColor(DiscordJS.Colors.DarkBlue).setTitle('Your guild setup')
         .addFields([
-            { name: 'Welcome message', value: guilds_settings.get(guildId).welcome_message ? 'Enable' : 'Disable' },
-            { name: 'Default roles', value: guilds_settings.get(guildId).default_roles.length ? guild.roles.cache.map(r => [r.name, r.id]).filter(r => r[0] != '@everyone' && guilds_settings.get(guildId).default_roles.includes(r[1])).map(r => r[0]).join(', ') : 'No roles set' },
-            { name: 'Temporary channels category', value: guilds_settings.get(guildId).temp_chan_cat ? guild.channels.cache.get(guilds_settings.get(guildId).temp_chan_cat).name : 'No category set' },
-            { name: 'Temporary channels creation channel', value: guilds_settings.get(guildId).temp_chan_create ? guild.channels.cache.get(guilds_settings.get(guildId).temp_chan_create).name : 'No channel set' },
-            { name: 'Temporary private channels creation channel', value: guilds_settings.get(guildId).temp_priv_create ? guild.channels.cache.get(guilds_settings.get(guildId).temp_priv_create).name : 'No channel set' }
+            { name: 'Welcome message',
+                value: guilds_settings.get(guildId).welcome_message ? 'Enable' : 'Disable' },
+            { name: 'Default roles',
+                value: guilds_settings.get(guildId).default_roles.length ? guild.roles.cache.map(r => [r.name, r.id]).filter(r => r[0] != '@everyone' && guilds_settings.get(guildId).default_roles.includes(r[1])).map(r => r[0]).join(', ') : 'No roles set' },
+            { name: 'Temporary channels category',
+                value: guilds_settings.get(guildId).temp_chan_cat ? guild.channels.cache.get(guilds_settings.get(guildId).temp_chan_cat) ? guild.channels.cache.get(guilds_settings.get(guildId).temp_chan_cat).name : 'No category set' : 'No category set' },
+            { name: 'Temporary channels creation channel',
+                value: guilds_settings.get(guildId).temp_chan_create ? guild.channels.cache.get(guilds_settings.get(guildId).temp_chan_create) ? guild.channels.cache.get(guilds_settings.get(guildId).temp_chan_create).name : 'No channel set' : 'No channel set' },
+            { name: 'Temporary private channels creation channel',
+                value: guilds_settings.get(guildId).temp_priv_create ? guild.channels.cache.get(guilds_settings.get(guildId).temp_priv_create) ? guild.channels.cache.get(guilds_settings.get(guildId).temp_priv_create).name : 'No channel set' : 'No channel set' }
         ])
         return embed
     } catch (e) {console.error('Error in /setup display:', e)}
