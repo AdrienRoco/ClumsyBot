@@ -22,7 +22,7 @@ async function create_channels(guild, author, limit = null) {
             nsfw: true,
         }).then(channel => {return channel})
         try {await createdVoice.send({ embeds: [embed]} )} catch {}
-        try {const m = await createdVoice.send({ content: `${author}` }); setTimeout(() => m.delete(), 100)} catch {}
+        // try {const m = await createdVoice.send({ content: `${author}` }); setTimeout(() => m.delete(), 100)} catch {}
         try {await guild.members.cache.get(author.id).voice.setChannel(createdVoice.id)} catch {}
         temp_channels.add(createdVoice.id)
         await temp_channels.save();
