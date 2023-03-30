@@ -51,6 +51,10 @@ module.exports = {
             .setName('temp_priv_create')
             .setDescription('The channel for the temporary private channels creation')
             .setRequired(false))
+        .addBooleanOption(option => option
+            .setName('reset_temp_chan')
+            .setDescription('Reset the temporary channels settings?')
+            .setRequired(false))
         .setDefaultMemberPermissions(DiscordJS.PermissionFlagsBits.Administrator),
     async execute({client, interaction, options}) {
         try {
@@ -63,6 +67,7 @@ module.exports = {
                     if (options[element]["name"] == "temp_chan_cat") guilds_settings.modify(guildId, "temp_chan_cat", options[element]["value"])
                     if (options[element]["name"] == "temp_chan_create") guilds_settings.modify(guildId, "temp_chan_create", options[element]["value"])
                     if (options[element]["name"] == "temp_priv_create") guilds_settings.modify(guildId, "temp_priv_create", options[element]["value"])
+                    if (options[element]["name"] == "reset_temp_chan") {guilds_settings.modify(guildId, "temp_chan_cat", null); guilds_settings.modify(guildId, "temp_chan_create", null); guilds_settings.modify(guildId, "temp_priv_create", null)}
                     if (options[element]["name"] == "default_roles") {
                         if (options[element]["value"] == "clear") guilds_settings.modify(guildId, "default_roles", [])
                         if (options[element]["value"] == "add") {
