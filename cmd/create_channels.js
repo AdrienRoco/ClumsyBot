@@ -43,7 +43,7 @@ async function create_private_channels(guild, author, limit = null) {
         .addFields([{name: '`How can you invite a user?`', value: `use \`/invite\` and choose a user or a role`}, {name: '`Channel owner:`', value: `${author}`}])
 
         const createdVoice = await guild.channels.create({
-            name: `🔒💢${name}'s💢🔒`,
+            name: `🔒${name}'s🔒`,
             type: DiscordJS.ChannelType.GuildVoice,
             parent: category,
             userLimit: limit,
