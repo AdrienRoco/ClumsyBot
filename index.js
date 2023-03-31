@@ -80,7 +80,7 @@ client.on(DiscordJS.Events.MessageCreate, async message => {
 })
 
 client.on(DiscordJS.Events.VoiceStateUpdate, async (oldState, newState) => {
-    if (oldState.channel != null && oldState.channel != newState.channel && oldState.channel.members.size == 0) {
+    if (oldState.channel != null && oldState.channel != newState.channel && Object.keys(temp_channels.get()).includes(oldState.channel.id) && oldState.channel.members.size == 0) {
         await wait(5000);
         try {await client.Commands.get('delete').execute({ client })} catch (e) {console.error('Error in voiceStateUpdate:', e)}
     }
