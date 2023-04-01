@@ -84,7 +84,7 @@ client.on(DiscordJS.Events.VoiceStateUpdate, async (oldState, newState) => {
         await wait(5000);
         try {await client.Commands.get('delete').execute({ client })} catch (e) {console.error('Error in voiceStateUpdate:', e)}
     }
-    if (newState.channel != null && guilds_settings.get(newState.guild.id)) {
+    else if (newState.channel != null && guilds_settings.get(newState.guild.id)) {
         if (guilds_settings.get(newState.guild.id).temp_chan_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_chan_create) {
             const options = [{value: "normal", guild: newState.guild, user: newState.member.user}]
             try {await client.Commands.get('create').execute({ options })} catch (e) {console.error('Error in voiceStateUpdate:', e)}
