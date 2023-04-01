@@ -80,6 +80,7 @@ client.on(DiscordJS.Events.MessageCreate, async message => {
 })
 
 client.on(DiscordJS.Events.VoiceStateUpdate, async (oldState, newState) => {
+    console.log(oldState, newState)
     if (newState.channel != null && guilds_settings.get(newState.guild.id)) {
         if (guilds_settings.get(newState.guild.id).temp_chan_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_chan_create) {
             const options = [{value: "normal", guild: newState.guild, user: newState.member.user}]
@@ -91,7 +92,8 @@ client.on(DiscordJS.Events.VoiceStateUpdate, async (oldState, newState) => {
             try {await client.Commands.get('create').execute({ options })} catch (e) {console.error('Error in voiceStateUpdate:', e)}
             return
         }
-    } else if (oldState.channel != null && oldState.channel != newState.channel && Object.keys(temp_channels.get()).includes(oldState.channel.id) && oldState.channel.members.size == 0) {
+    }
+    if (oldState.channel != null && oldState.channel != newState.channel && Object.keys(temp_channels.get()).includes(oldState.channel.id) && oldState.channel.members.size == 0) {
         await wait(5000);
         try {await client.Commands.get('delete').execute({ client })} catch (e) {console.error('Error in voiceStateUpdate:', e)}
     }
