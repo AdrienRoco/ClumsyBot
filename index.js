@@ -79,8 +79,10 @@ client.on(DiscordJS.Events.MessageCreate, async message => {
     } catch (e) {console.error('Error in messageCreate:', e)}
 })
 
-client.on(DiscordJS.Events.VoiceStateUpdate, async (oldState, newState) => {
+client.on("voiceStateUpdate", async (oldState, newState) => {
+    console.log('voiceStateUpdate----------------------')
     console.log(oldState, newState)
+    console.log('voiceStateUpdate----------------------')
     if (newState.channel != null && guilds_settings.get(newState.guild.id)) {
         if (guilds_settings.get(newState.guild.id).temp_chan_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_chan_create) {
             const options = [{value: "normal", guild: newState.guild, user: newState.member.user}]
