@@ -79,27 +79,47 @@ client.on(DiscordJS.Events.MessageCreate, async message => {
     } catch (e) {console.error('Error in messageCreate:', e)}
 })
 
-client.on("voiceStateUpdate", async (oldState, newState) => {
-    console.log('voiceStateUpdate----------------------')
-    console.log(oldState, newState)
-    console.log('voiceStateUpdate----------------------')
-    if (newState.channel != null && guilds_settings.get(newState.guild.id)) {
-        if (guilds_settings.get(newState.guild.id).temp_chan_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_chan_create) {
-            const options = [{value: "normal", guild: newState.guild, user: newState.member.user}]
-            try {await client.Commands.get('create').execute({ options })} catch (e) {console.error('Error in voiceStateUpdate:', e)}
+client.on(DiscordJS.Events.VoiceStateUpdate, async (oldState, newState) => {
+    try {
+        if (oldState.channel == newState.channel) return;
+        if (oldState.member.user.bot) return;
+        if (newState.channel == null && oldState.channel != null && guilds_settings.get(oldState.guild.id)) { // User Disconnect
+            if (Object.keys(temp_channels.get()).includes(oldState.channel.id) && oldState.channel.members.size == 0) {
+                await wait(5000);
+                await client.Commands.get('delete').execute({ client })
+            }
             return
         }
-        if (guilds_settings.get(newState.guild.id).temp_priv_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_priv_create) {
-            const options = [{value: "priv", guild: newState.guild, user: newState.member.user}]
-            try {await client.Commands.get('create').execute({ options })} catch (e) {console.error('Error in voiceStateUpdate:', e)}
+        if (newState.channel != null && oldState.channel == null && guilds_settings.get(newState.guild.id)) { // User Connect
+            if (guilds_settings.get(newState.guild.id).temp_chan_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_chan_create) {
+                const options = [{value: "normal", guild: newState.guild, user: newState.member.user}]
+                await client.Commands.get('create').execute({ options })
+                return
+            }
+            if (guilds_settings.get(newState.guild.id).temp_priv_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_priv_create) {
+                const options = [{value: "priv", guild: newState.guild, user: newState.member.user}]
+                await client.Commands.get('create').execute({ options })
+                return
+            }
             return
         }
-    }
-    if (oldState.channel != null && oldState.channel != newState.channel && Object.keys(temp_channels.get()).includes(oldState.channel.id) && oldState.channel.members.size == 0) {
-        await wait(5000);
-        try {await client.Commands.get('delete').execute({ client })} catch (e) {console.error('Error in voiceStateUpdate:', e)}
-    }
-});
+        if (newState.channel != null && oldState.channel != null) { // User Move
+            if (guilds_settings.get(newState.guild.id).temp_chan_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_chan_create) {
+                const options = [{value: "normal", guild: newState.guild, user: newState.member.user}]
+                await client.Commands.get('create').execute({ options })
+            }
+            if (guilds_settings.get(newState.guild.id).temp_priv_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_priv_create) {
+                const options = [{value: "priv", guild: newState.guild, user: newState.member.user}]
+                await client.Commands.get('create').execute({ options })
+            }
+            if (Object.keys(temp_channels.get()).includes(oldState.channel.id) && oldState.channel.members.size == 0) {
+                await wait(5000);
+                await client.Commands.get('delete').execute({ client })
+            }
+            return
+        }
+    } catch (e) {console.error('Error in voiceStateUpdate:', e)}
+})
 
 client.on(DiscordJS.Events.GuildMemberAdd, async member => {
     const guild = client.guilds.cache.get(member.guild.id);
