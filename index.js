@@ -83,14 +83,16 @@ client.on(DiscordJS.Events.VoiceStateUpdate, async (oldState, newState) => {
     try {
         if (oldState.channel == newState.channel) return;
         if (oldState.member.user.bot) return;
-        if (newState.channel == null && oldState.channel != null && guilds_settings.get(oldState.guild.id)) { // User Disconnect
+        // User Disconnect
+        if (newState.channel == null && oldState.channel != null && guilds_settings.get(oldState.guild.id)) {
             if (Object.keys(temp_channels.get()).includes(oldState.channel.id) && oldState.channel.members.size == 0) {
                 await wait(5000);
                 await client.Commands.get('delete').execute({ client })
             }
             return
         }
-        if (newState.channel != null && oldState.channel == null && guilds_settings.get(newState.guild.id)) { // User Connect
+        // User Connect
+        if (newState.channel != null && oldState.channel == null && guilds_settings.get(newState.guild.id)) {
             if (guilds_settings.get(newState.guild.id).temp_chan_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_chan_create) {
                 const options = [{value: "normal", guild: newState.guild, user: newState.member.user}]
                 await client.Commands.get('create').execute({ options })
@@ -103,7 +105,8 @@ client.on(DiscordJS.Events.VoiceStateUpdate, async (oldState, newState) => {
             }
             return
         }
-        if (newState.channel != null && oldState.channel != null) { // User Move
+        // User Move
+        if (newState.channel != null && oldState.channel != null) {
             if (guilds_settings.get(newState.guild.id).temp_chan_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_chan_create) {
                 const options = [{value: "normal", guild: newState.guild, user: newState.member.user}]
                 await client.Commands.get('create').execute({ options })
