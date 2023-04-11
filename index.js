@@ -1,6 +1,7 @@
 require('dotenv').config({ path: './config/.env' });
 const guilds_settings = require('./configuration.js');
 const temp_channels = require('./channels.js');
+const auto_mod = require('./automod.js');
 const DiscordJS = require('discord.js');
 const fs = require('fs');
 const wait = require('node:timers/promises').setTimeout;
@@ -17,13 +18,13 @@ client.on(DiscordJS.Events.ClientReady, async () => {
 
     const commands_test = [];
     const commands_main = [];
-    const commandFiles = fs.readdirSync("./cmd").filter(file => file.endsWith('.js'));
+    const commandFiles = fs.readdirSync('./cmd').filter(file => file.endsWith('.js'));
     for (const file of commandFiles) {
         const command = require(`./cmd/${file}`);
         if (command.test) commands_test.push(command.data.toJSON());
         else commands_main.push(command.data.toJSON());
         if ('data' in command && 'execute' in command) client.Commands.set(command.data.name, command);
-        else console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+        else console.log(`[WARNING] The command at ${filePath} is missing a required 'data' or 'execute' property.`);
     }
     await (async () => {
         try {
@@ -56,7 +57,14 @@ client.on(DiscordJS.Events.InteractionCreate, async interaction => {
         }
         // Selection menu and button management
         else if (interaction.isStringSelectMenu() || interaction.isButton()) {
-            await client.Commands.get(interaction.message.interaction.commandName).execute({client, interaction})
+            if (interaction.message.interaction)
+                await client.Commands.get(interaction.message.interaction.commandName).execute({client, interaction})
+            else {
+                switch (interaction.customId.split('_')[0]) {
+                    case 'automod': {auto_mod.interaction(client, interaction); break}
+                    default: break;
+                }
+            }
         }
     } catch (e) {console.error('Error in interactionCreate:', e)}
 })
@@ -64,6 +72,14 @@ client.on(DiscordJS.Events.InteractionCreate, async interaction => {
 client.on(DiscordJS.Events.MessageCreate, async message => {
     try {
         if (message.author.bot) return;
+
+        const automod = auto_mod.check(client, message)
+        switch (automod[0]) {
+            case 1: {return await auto_mod.audit(client, message, automod[1])}
+            case 2: {return await auto_mod.delete(client, message, automod[1])}
+            default: {break}
+        }
+
         if (message.content.toLowerCase().replace(/(\?|\!|\.|\,|\s)+$/, '').endsWith('quoi')) {message.reply({ content: 'feur' }); return}
         if (message.content.toLowerCase().replace(/(\?|\!|\.|\,|\s)+$/, '').endsWith('hein')) {message.reply({ content: 'deux' }); return}
 
@@ -74,8 +90,8 @@ client.on(DiscordJS.Events.MessageCreate, async message => {
         if      (message.content.startsWith(clientId1)) {args = message.content.slice(clientId1.length).trim().split(/ +/g);}
         else if (message.content.startsWith(clientId2)) {args = message.content.slice(clientId2.length).trim().split(/ +/g);}
         let commandName = args.shift().toLowerCase();
-        if (!commandName) {message.reply({ content: "What the f*** do you want???" }).catch(); return;}
-        else message.reply({ content: "Use / to see every commands" }).catch(); return;
+        if (!commandName) {message.reply({ content: 'What the f*** do you want???' }).catch(); return;}
+        else message.reply({ content: 'Use / to see every commands' }).catch(); return;
     } catch (e) {console.error('Error in messageCreate:', e)}
 })
 
@@ -94,12 +110,12 @@ client.on(DiscordJS.Events.VoiceStateUpdate, async (oldState, newState) => {
         // User Connect
         if (newState.channel != null && oldState.channel == null && guilds_settings.get(newState.guild.id)) {
             if (guilds_settings.get(newState.guild.id).temp_chan_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_chan_create) {
-                const options = [{value: "normal", guild: newState.guild, user: newState.member.user}]
+                const options = [{value: 'normal', guild: newState.guild, user: newState.member.user}]
                 await client.Commands.get('create').execute({ options })
                 return
             }
             if (guilds_settings.get(newState.guild.id).temp_priv_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_priv_create) {
-                const options = [{value: "priv", guild: newState.guild, user: newState.member.user}]
+                const options = [{value: 'priv', guild: newState.guild, user: newState.member.user}]
                 await client.Commands.get('create').execute({ options })
                 return
             }
@@ -108,11 +124,11 @@ client.on(DiscordJS.Events.VoiceStateUpdate, async (oldState, newState) => {
         // User Move
         if (newState.channel != null && oldState.channel != null) {
             if (guilds_settings.get(newState.guild.id).temp_chan_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_chan_create) {
-                const options = [{value: "normal", guild: newState.guild, user: newState.member.user}]
+                const options = [{value: 'normal', guild: newState.guild, user: newState.member.user}]
                 await client.Commands.get('create').execute({ options })
             }
             if (guilds_settings.get(newState.guild.id).temp_priv_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_priv_create) {
-                const options = [{value: "priv", guild: newState.guild, user: newState.member.user}]
+                const options = [{value: 'priv', guild: newState.guild, user: newState.member.user}]
                 await client.Commands.get('create').execute({ options })
             }
             if (Object.keys(temp_channels.get()).includes(oldState.channel.id) && oldState.channel.members.size == 0) {
@@ -131,7 +147,7 @@ client.on(DiscordJS.Events.GuildMemberAdd, async member => {
     try {wel_msg = guilds_settings.get(member.guild.id).welcome_message} catch {wel_msg = true}
     try {roles_list = guilds_settings.get(member.guild.id).default_roles} catch {roles_list = []}
     if (wel_msg && main) {
-        const embed = new DiscordJS.EmbedBuilder().setTitle("Welcome").setColor(DiscordJS.Colors.DarkGreen).setTimestamp()
+        const embed = new DiscordJS.EmbedBuilder().setTitle('Welcome').setColor(DiscordJS.Colors.DarkGreen).setTimestamp()
         .setThumbnail(client.users.cache.get(member.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
         .setDescription(`Hey ${member}, welcome to **${member.guild}**!`)
         main.send({ embeds: [embed] });
@@ -151,7 +167,7 @@ client.on(DiscordJS.Events.GuildMemberRemove, async member => {
     var wel_msg;
     try {wel_msg = guilds_settings.get(member.guild.id).welcome_message} catch {wel_msg = true}
     if (wel_msg) {
-        const embed = new DiscordJS.EmbedBuilder().setTitle("Goodbye").setColor(DiscordJS.Colors.Red).setTimestamp()
+        const embed = new DiscordJS.EmbedBuilder().setTitle('Goodbye').setColor(DiscordJS.Colors.Red).setTimestamp()
         .setThumbnail(client.users.cache.get(member.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
         .setDescription(`Goodbye \`${member.user.username}#${member.user.discriminator}\`, have a great time!`)
         main.send({embeds: [embed]});

@@ -14,14 +14,18 @@ exports.set = function(guildId,
     default_roles = [],
     temp_chan_cat = null,
     temp_chan_create = null,
-    temp_priv_create = null)
+    temp_priv_create = null,
+    auto_mod = false,
+    auto_mod_channel = null)
 {
     guilds_settings[guildId] = {
-        "welcome_message": welcome_message,
-        "default_roles": default_roles,
-        "temp_chan_cat": temp_chan_cat,
-        "temp_chan_create": temp_chan_create,
-        "temp_priv_create": temp_priv_create
+        'welcome_message': welcome_message,
+        'default_roles': default_roles,
+        'temp_chan_cat': temp_chan_cat,
+        'temp_chan_create': temp_chan_create,
+        'temp_priv_create': temp_priv_create,
+        'auto_mod': auto_mod,
+        'auto_mod_channel': auto_mod_channel
     }
 }
 
@@ -43,5 +47,5 @@ exports.load = async function() {
         const rawdata = fs.readFileSync(file_path);
         const data = JSON.parse(rawdata);
         guilds_settings = data;
-    } catch {fs.writeFileSync(file_path, "{}", (err) => {if (err) throw err})}
+    } catch {fs.writeFileSync(file_path, '{}', (err) => {if (err) throw err})}
 }
