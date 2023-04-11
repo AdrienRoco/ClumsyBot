@@ -3,10 +3,10 @@ const guilds_settings = require('./configuration.js');
 
 const words_list = {
     'nazi': 1,
-    'salope': 2,
+    'salope': 1,
     'pute': 2,
-    'enculé': 2,
-    'nigga': 2
+    'enculé': 1,
+    'nigga': 1
 };
 
 function standardize_word(word) {
@@ -51,17 +51,51 @@ function embed_builder(message, type, word) {
         .setColor(type == 1 ? DiscordJS.Colors.Yellow : type == 2 ? DiscordJS.Colors.Orange : DiscordJS.Colors.White).setTimestamp()
         .setTitle('AutoMod')
         .setThumbnail(message.author.avatarURL({ dynamic: true, format: 'png', size: 64 }))
-        .setDescription(
-            type == 1 ? 'AutoMod found a suspicious word\nYou might want to check it out!' :
-            type == 2 ? 'AutoMod found a suspicious word\nThe message has been deleted!' : 'Unknown')
+        .setDescription('AutoMod found a suspicious word\nYou might want to check it out!')
         .addFields([
-            {name: '`Channel:`', value: `${message.channel}`, inline: false},
+            {name: '`Channel:`', value: `${message.channel}\n**${message.guild} - ${message.channel.name}**`, inline: false},
             {name: '`Author:`', value: `${message.author}\n**${message.author.username}#${message.author.discriminator}**`, inline: false},
             {name: '`Message:`', value: `${message.content}`, inline: false},
             {name: '`Word:`', value: `${word}`, inline: false},
             {name: '`Action:`', value: type == 1 ? 'None' : type == 2 ? 'Deleted' : 'Unknown', inline: false}])
         .setFooter({ text: type == 1 ? 'Flagged' : type == 2 ? 'Deleted' : 'Unknown' })
     return embed;
+}
+
+function dm_builder(message, type, word, interaction = null) {
+    if (!interaction) {
+        const embed = new DiscordJS.EmbedBuilder()
+            .setColor(type == 2 ? DiscordJS.Colors.Yellow : type == 3 ? DiscordJS.Colors.Orange : type == 4 ? DiscordJS.Colors.Red : DiscordJS.Colors.White).setTimestamp()
+            .setTitle('AutoMod')
+            .setThumbnail(message.author.avatarURL({ dynamic: true, format: 'png', size: 64 }))
+            .setDescription('AutoMod found a suspicious word\nThe message has been deleted!\n' + `${
+                type == 2 ? 'Further actions might be taken after admin review.' :
+                type == 3 ? 'After review, you have been kicked from the server!' :
+                type == 4 ? 'After review, you have been banned from the server!' : 'No further actions have been taken.'}`)
+            .addFields([
+                {name: '`Channel:`', value: `${message.channel}\n**${message.guild} - ${message.channel.name}**`, inline: false},
+                {name: '`Author:`', value: `${message.author}\n**${message.author.username}#${message.author.discriminator}**`, inline: false},
+                {name: '`Message:`', value: `${message.content}`, inline: false},
+                {name: '`Word:`', value: `${word}`, inline: false}])
+            .setFooter({ text: 'Flagged' })
+        return embed;
+    } else {
+        const embed = new DiscordJS.EmbedBuilder()
+        .setColor(type == 2 ? DiscordJS.Colors.Yellow : type == 3 ? DiscordJS.Colors.Orange : type == 4 ? DiscordJS.Colors.Red : DiscordJS.Colors.White).setTimestamp()
+        .setTitle('AutoMod')
+        .setThumbnail(interaction.user.avatarURL({ dynamic: true, format: 'png', size: 64 }))
+        .setDescription('AutoMod found a suspicious word\nThe message has been deleted!\n' + `${
+            type == 2 ? 'Further actions might be taken after admin review.' :
+            type == 3 ? 'After review, you have been kicked from the server!' :
+            type == 4 ? 'After review, you have been banned from the server!' : 'No further actions have been taken.'}`)
+        .addFields([
+            {name: '`Channel:`', value: `${interaction.message.embeds[0].fields[0].value}`, inline: false},
+            {name: '`Author:`', value: `${interaction.message.embeds[0].fields[1].value}`, inline: false},
+            {name: '`Message:`', value: `${interaction.message.embeds[0].fields[2].value}`, inline: false},
+            {name: '`Word:`', value: `${word}`, inline: false}])
+        .setFooter({ text: 'Flagged' })
+        return embed;
+    }
 }
 
 exports.interaction = async function(client, interaction) {
@@ -79,15 +113,18 @@ exports.interaction = async function(client, interaction) {
             case '2':
                 embed.addFields({name: '`Action:`', value: 'Deleted', inline: false});
                 try {await message.delete()} catch {}
+                try {await user.send({ embeds: [dm_builder(message, 2, interaction.message.embeds[0].fields[3].value, interaction)] })} catch (e) {console.log(e)}
                 break;
             case '3':
                 embed.addFields({name: '`Action:`', value: 'Kicked', inline: false});
                 try {await message.delete()} catch {}
+                try {await user.send({ embeds: [dm_builder(message, 3, interaction.message.embeds[0].fields[3].value, interaction)] })} catch {}
                 try {await user.kick(interaction.message.embeds[0].fields[2].value)} catch {}
                 break;
             case '4':
                 embed.addFields({name: '`Action:`', value: 'Banned', inline: false});
                 try {await message.delete()} catch {}
+                try {await user.send({ embeds: [dm_builder(message, 4, interaction.message.embeds[0].fields[3].value, interaction)] })} catch {}
                 try {await user.ban(interaction.message.embeds[0].fields[2].value)} catch {}
                 break;
             default: break;
@@ -143,7 +180,8 @@ exports.delete = async function(client, message, word) {
             .setCustomId(`automod_4_${message.id}_${message.author.id}`)
             .setDisabled(false)
             .setStyle(DiscordJS.ButtonStyle.Danger));
-    try {await channel.send({ embeds: [embed], components: [actions] })} catch (e) {console.log(e)}
+    try {await channel.send({ embeds: [embed], components: [actions] })} catch {}
+    try {await message.author.send({ embeds: [dm_builder(message, 2, word)] })} catch {}
     try {await message.delete()} catch {}
 }
 

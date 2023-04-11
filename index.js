@@ -72,6 +72,7 @@ client.on(DiscordJS.Events.InteractionCreate, async interaction => {
 client.on(DiscordJS.Events.MessageCreate, async message => {
     try {
         if (message.author.bot) return;
+        if (!message.guildId) return;
 
         const automod = auto_mod.check(client, message)
         switch (automod[0]) {
