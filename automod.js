@@ -2,11 +2,11 @@ const DiscordJS = require('discord.js');
 const guilds_settings = require('./configuration.js');
 
 const words_list = {
-    'nazi': 1,
-    'salope': 1,
-    'pute': 2,
-    'enculé': 1,
-    'nigga': 1
+    'Nazi': 1,
+    'Salope': 1,
+    'Pute': 2,
+    'Encule': 1,
+    'Nigga': 1
 };
 
 function standardize_word(word) {
@@ -101,6 +101,7 @@ function dm_builder(message, type, word, interaction = null) {
 exports.interaction = async function(client, interaction) {
     try {
         await interaction.deferReply({ ephemeral: true });
+        if (!interaction.member.permissions.has(DiscordJS.PermissionFlagsBits.ManageMessages)) {return await interaction.editReply({ content: 'You do not have permission to do that!' });}
         const options = interaction.customId.split('_');
         const message = client.guilds.cache.get(interaction.guildId).channels.cache.get(interaction.channelId).messages.cache.get(options[2]);
         const user = client.guilds.cache.get(interaction.guildId).members.cache.get(options[3]);
@@ -116,12 +117,14 @@ exports.interaction = async function(client, interaction) {
                 try {await user.send({ embeds: [dm_builder(message, 2, interaction.message.embeds[0].fields[3].value, interaction)] })} catch (e) {console.log(e)}
                 break;
             case '3':
+                if (!interaction.member.permissions.has(DiscordJS.PermissionFlagsBits.KickMembers)) {return await interaction.editReply({ content: 'You do not have permission to do that!' });}
                 embed.addFields({name: '`Action:`', value: 'Kicked', inline: false});
                 try {await message.delete()} catch {}
                 try {await user.send({ embeds: [dm_builder(message, 3, interaction.message.embeds[0].fields[3].value, interaction)] })} catch {}
                 try {await user.kick(interaction.message.embeds[0].fields[2].value)} catch {}
                 break;
             case '4':
+                if (!interaction.member.permissions.has(DiscordJS.PermissionFlagsBits.BanMembers)) {return await interaction.editReply({ content: 'You do not have permission to do that!' });}
                 embed.addFields({name: '`Action:`', value: 'Banned', inline: false});
                 try {await message.delete()} catch {}
                 try {await user.send({ embeds: [dm_builder(message, 4, interaction.message.embeds[0].fields[3].value, interaction)] })} catch {}
