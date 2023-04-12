@@ -1,14 +1,10 @@
+const fs = require('fs');
+const file_path = './badwords.json';
 const DiscordJS = require('discord.js');
 const guilds_settings = require('./configuration.js');
 const user_scores = require('./userscores.js');
 
-const words_list = {
-    'Nazi': 1,
-    'Salope': 1,
-    'Pute': 2,
-    'Encule': 1,
-    'Nigga': 1
-};
+var words_list = {};
 
 function standardize_word(word) {
     return word.toLowerCase()
@@ -212,6 +208,11 @@ exports.check = function(client, message) {
     return result;
 }
 
-exports.load = function() {
-    user_scores.load();
+exports.load = async function() {
+    await user_scores.load();
+    try {
+        const rawdata = fs.readFileSync(file_path);
+        const data = JSON.parse(rawdata);
+        words_list = data;
+    } catch {fs.writeFileSync(file_path, '{}', (err) => {if (err) throw err})}
 }
