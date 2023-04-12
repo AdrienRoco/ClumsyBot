@@ -1,5 +1,6 @@
 const DiscordJS = require('discord.js');
 const guilds_settings = require('./configuration.js');
+const user_scores = require('./userscores.js');
 
 const words_list = {
     'Nazi': 1,
@@ -55,6 +56,7 @@ function embed_builder(message, type, word) {
         .addFields([
             {name: '`Channel:`', value: `${message.channel}\n**${message.guild} - ${message.channel.name}**`, inline: false},
             {name: '`Author:`', value: `${message.author}\n**${message.author.username}#${message.author.discriminator}**`, inline: false},
+            {name: '`Score:`', value: `${user_scores.get(message.author.id)['score']}`, inline: false},
             {name: '`Message:`', value: `${message.content}`, inline: false},
             {name: '`Word:`', value: `${word}`, inline: false},
             {name: '`Action:`', value: type == 1 ? 'None' : type == 2 ? 'Deleted' : 'Unknown', inline: false}])
@@ -91,7 +93,7 @@ function dm_builder(message, type, word, interaction = null) {
         .addFields([
             {name: '`Channel:`', value: `${interaction.message.embeds[0].fields[0].value}`, inline: false},
             {name: '`Author:`', value: `${interaction.message.embeds[0].fields[1].value}`, inline: false},
-            {name: '`Message:`', value: `${interaction.message.embeds[0].fields[2].value}`, inline: false},
+            {name: '`Message:`', value: `${interaction.message.embeds[0].fields[3].value}`, inline: false},
             {name: '`Word:`', value: `${word}`, inline: false}])
         .setFooter({ text: 'Flagged' })
         return embed;
@@ -106,32 +108,36 @@ exports.interaction = async function(client, interaction) {
         const message = client.guilds.cache.get(interaction.guildId).channels.cache.get(interaction.channelId).messages.cache.get(options[2]);
         const user = client.guilds.cache.get(interaction.guildId).members.cache.get(options[3]);
         var embed = DiscordJS.EmbedBuilder.from(interaction.message.embeds[0]).setColor(DiscordJS.Colors.White).setFooter({text: `Action taken by ${interaction.user.username}#${interaction.user.discriminator}`})
-            .setFields([interaction.message.embeds[0].fields[0], interaction.message.embeds[0].fields[1], interaction.message.embeds[0].fields[2], interaction.message.embeds[0].fields[3]]);
+            .setFields([interaction.message.embeds[0].fields[0], interaction.message.embeds[0].fields[1], interaction.message.embeds[0].fields[2], interaction.message.embeds[0].fields[3], interaction.message.embeds[0].fields[4]]);
         switch (options[1]) {
             case '1':
-                embed.addFields({name: '`Action:`', value: interaction.message.embeds[0].fields[4].value == 'Deleted' ? 'Deleted' : 'None', inline: false});
+                embed.addFields({name: '`Action:`', value: interaction.message.embeds[0].fields[5].value == 'Deleted' ? 'Deleted' : 'None', inline: false});
                 break;
             case '2':
                 embed.addFields({name: '`Action:`', value: 'Deleted', inline: false});
                 try {await message.delete()} catch {}
-                try {await user.send({ embeds: [dm_builder(message, 2, interaction.message.embeds[0].fields[3].value, interaction)] })} catch (e) {console.log(e)}
+                await user_scores.add(user.id, `${user.user.username}#${user.user.discriminator}`, interaction.member.guild.name);
+                try {await user.send({ embeds: [dm_builder(message, 2, interaction.message.embeds[0].fields[4].value, interaction)] })} catch (e) {console.log(e)}
                 break;
             case '3':
                 if (!interaction.member.permissions.has(DiscordJS.PermissionFlagsBits.KickMembers)) {return await interaction.editReply({ content: 'You do not have permission to do that!' });}
                 embed.addFields({name: '`Action:`', value: 'Kicked', inline: false});
                 try {await message.delete()} catch {}
-                try {await user.send({ embeds: [dm_builder(message, 3, interaction.message.embeds[0].fields[3].value, interaction)] })} catch {}
-                try {await user.kick(interaction.message.embeds[0].fields[2].value)} catch {}
+                await user_scores.add(user.id, `${user.user.username}#${user.user.discriminator}`, interaction.member.guild.name, 2);
+                try {await user.send({ embeds: [dm_builder(message, 3, interaction.message.embeds[0].fields[4].value, interaction)] })} catch {}
+                try {await user.kick(interaction.message.embeds[0].fields[3].value)} catch {}
                 break;
             case '4':
                 if (!interaction.member.permissions.has(DiscordJS.PermissionFlagsBits.BanMembers)) {return await interaction.editReply({ content: 'You do not have permission to do that!' });}
                 embed.addFields({name: '`Action:`', value: 'Banned', inline: false});
                 try {await message.delete()} catch {}
-                try {await user.send({ embeds: [dm_builder(message, 4, interaction.message.embeds[0].fields[3].value, interaction)] })} catch {}
-                try {await user.ban(interaction.message.embeds[0].fields[2].value)} catch {}
+                await user_scores.add(user.id, `${user.user.username}#${user.user.discriminator}`, interaction.member.guild.name, 3);
+                try {await user.send({ embeds: [dm_builder(message, 4, interaction.message.embeds[0].fields[4].value, interaction)] })} catch {}
+                try {await user.ban(interaction.message.embeds[0].fields[3].value)} catch {}
                 break;
             default: break;
         }
+        await user_scores.save();
         await interaction.message.edit({ embeds: [embed], components: [] });
         await interaction.deleteReply();
     } catch {}
@@ -183,9 +189,11 @@ exports.delete = async function(client, message, word) {
             .setCustomId(`automod_4_${message.id}_${message.author.id}`)
             .setDisabled(false)
             .setStyle(DiscordJS.ButtonStyle.Danger));
+    await user_scores.add(message.author.id, `${message.author.username}#${message.author.discriminator}`, message.guild.name);
     try {await channel.send({ embeds: [embed], components: [actions] })} catch {}
     try {await message.author.send({ embeds: [dm_builder(message, 2, word)] })} catch {}
     try {await message.delete()} catch {}
+    await user_scores.save();
 }
 
 exports.check = function(client, message) {
@@ -202,4 +210,8 @@ exports.check = function(client, message) {
     var result = 0;
     keys.forEach(word => {if (message_content.includes(standardize_word(word))) result = [words_list[word], word]})
     return result;
+}
+
+exports.load = function() {
+    user_scores.load();
 }

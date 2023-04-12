@@ -15,6 +15,7 @@ client.CacheInteractions = new DiscordJS.Collection();
 client.on(DiscordJS.Events.ClientReady, async () => {
     await guilds_settings.load()
     await temp_channels.load()
+    await auto_mod.load()
 
     const commands_test = [];
     const commands_main = [];

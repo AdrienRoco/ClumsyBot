@@ -9,10 +9,6 @@ exports.get = function(id = null) {
     return temp_channels;
 }
 
-exports.set = function(data) {
-    temp_channels = data;
-}
-
 exports.add = function(voiceId, private = false) {
     temp_channels[voiceId] = {
         'private': private
