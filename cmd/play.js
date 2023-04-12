@@ -1,4 +1,4 @@
-const DiscordJS = require("discord.js");
+const DiscordJS = require('discord.js');
 
 // Start of Shifumi
 function convert(p) {
@@ -68,7 +68,7 @@ async function manage_shifumi(client, interaction, game_interaction, response) {
                 const embed = new DiscordJS.EmbedBuilder()
                     .setTitle('Shifumi')
                     .setColor(DiscordJS.Colors.Blue)
-                    .setFooter({ text: "Make your choice:" })
+                    .setFooter({ text: 'Make your choice:' })
                     .addFields([{name: 'Players :', value: `${game_interaction.member} vs ${game_interaction.options._hoistedOptions[1].member}`}])
                     const row = new DiscordJS.ActionRowBuilder().addComponents(
                     new DiscordJS.ButtonBuilder()
@@ -98,7 +98,7 @@ async function manage_shifumi(client, interaction, game_interaction, response) {
         } else {
             const embed = DiscordJS.EmbedBuilder.from(interaction.message.embeds[0])
             .setColor(DiscordJS.Colors.Red).setFooter({text: null})
-            .addFields([{name: "To bad!", value: `${interaction.member} don't want to play with you`}])
+            .addFields([{name: 'To bad!', value: `${interaction.member} don\'t want to play with you`}])
             await game_interaction.editReply({ embeds: [embed], components: [] })
             try {client.CacheInteractions.delete(game_interaction.id)} catch {}
             return true
@@ -113,7 +113,7 @@ async function start_shifumi(client, interaction, options) {
         const embed = new DiscordJS.EmbedBuilder()
         .setColor(DiscordJS.Colors.Blue)
         .setTitle('Shifumi')
-        .setFooter({ text: "Make your choice:" })
+        .setFooter({ text: 'Make your choice:' })
         .addFields([{name: 'Player :', value: `${interaction.member}`}])
         const row = new DiscordJS.ActionRowBuilder().addComponents(
             new DiscordJS.ButtonBuilder()
@@ -133,7 +133,7 @@ async function start_shifumi(client, interaction, options) {
         const embed = new DiscordJS.EmbedBuilder()
         .setTitle('Shifumi')
         .setColor(DiscordJS.Colors.Blue)
-        .setFooter({ text: "Make your choice:" })
+        .setFooter({ text: 'Make your choice:' })
         .addFields([{name: 'Players :', value: `${interaction.member} vs ${options[1].member}`}, {name: `Do you accept the challenge?`, value: `${options[1].member}`}])
         const row = new DiscordJS.ActionRowBuilder().addComponents(
             new DiscordJS.ButtonBuilder()
@@ -250,20 +250,22 @@ function check_patterns_tictactoe(matrice, pattern) {
 }
 
 function find_move_tictactoe(matrice, first) {
-    patterns = [[2, 2, 0], [2, 0, 2], [0, 2, 2], [1, 1, 0], [1, 0, 1], [0, 1, 1]]
-    for (p in patterns) if (check_patterns_tictactoe(matrice, patterns[p])) return check_patterns_tictactoe(matrice, patterns[p])
+    const win_patterns = [[2, 2, 0], [2, 0, 2], [0, 2, 2], [1, 1, 0], [1, 0, 1], [0, 1, 1]]
+    var result = null
+    for (p in win_patterns) {result = check_patterns_tictactoe(matrice, win_patterns[p]); if (result) return result}
     if (matrice[0][0] == 2 && matrice[0][1] == 1 && matrice[2][0] == 0 && matrice[1][0] == 0 || matrice[2][2] == 2 && matrice[1][2] == 1 && matrice[2][0] == 0 && matrice[2][1] == 0) return [2, 0]
     if (matrice[0][0] == 2 && matrice[1][0] == 1 && matrice[0][2] == 0 && matrice[0][1] == 0 || matrice[2][2] == 2 && matrice[2][1] == 1 && matrice[0][2] == 0 && matrice[1][2] == 0) return [0, 2]
     if (matrice[0][2] == 2 && matrice[1][2] == 1 && matrice[0][0] == 0 && matrice[0][1] == 0 || matrice[2][0] == 2 && matrice[2][1] == 1 && matrice[0][0] == 0 && matrice[1][0] == 0) return [0, 0]
     if (matrice[0][2] == 2 && matrice[0][1] == 1 && matrice[2][2] == 0 && matrice[1][2] == 0 || matrice[2][0] == 2 && matrice[1][0] == 1 && matrice[2][2] == 0 && matrice[2][1] == 0) return [2, 2]
-    patterns = [[2, 1, 0], [0, 1, 2]]
-    for (p in patterns) if (check_patterns_tictactoe(matrice, patterns[p])) return check_patterns_tictactoe(matrice, patterns[p])
+    const sec_patterns = [[2, 1, 0], [0, 1, 2]]
+    result = null
+    for (p in sec_patterns) {result = check_patterns_tictactoe(matrice, sec_patterns[p]); if (result) return result}
     if (first) {
+        if (matrice[1][1] == 0) return [1, 1]
         if (matrice[0][0] == 0) return [0, 0]
         if (matrice[0][2] == 0) return [0, 2]
         if (matrice[2][0] == 0) return [2, 0]
         if (matrice[2][2] == 0) return [2, 2]
-        if (matrice[1][1] == 0) return [1, 1]
         if (matrice[0][1] == 0) return [0, 1]
         if (matrice[1][0] == 0) return [1, 0]
         if (matrice[1][2] == 0) return [1, 2]
@@ -318,7 +320,7 @@ async function manage_tictactoe(client, interaction, game_interaction, response)
                 const embed = new DiscordJS.EmbedBuilder()
                     .setTitle('Tic Tac Toe')
                     .setColor(DiscordJS.Colors.Blue)
-                    .setFooter({ text: "Make your choice:"})
+                    .setFooter({ text: 'Make your choice:'})
                     .addFields([
                         {name: 'Player ❌:', value: `${game_interaction.member}`},
                         {name: 'Player ⭕️:', value: `${game_interaction.options._hoistedOptions[1].member}`},
@@ -336,7 +338,7 @@ async function manage_tictactoe(client, interaction, game_interaction, response)
         } else {
             const embed = DiscordJS.EmbedBuilder.from(interaction.message.embeds[0])
                 .setColor(DiscordJS.Colors.Red).setFooter({text: null})
-                .addFields([{name: 'To bad!', value: `${interaction.member} don't want to play with you`}])
+                .addFields([{name: 'To bad!', value: `${interaction.member} don\'t want to play with you`}])
             await game_interaction.editReply({ embeds: [embed], components: [] })
             try {client.CacheInteractions.delete(game_interaction.id)} catch {}
             return true
@@ -366,7 +368,7 @@ async function start_tictactoe(client, interaction, options) {
         const embed = new DiscordJS.EmbedBuilder()
             .setTitle('Tic Tac Toe')
             .setColor(DiscordJS.Colors.Blue)
-            .setFooter({text: "Make your choice:"})
+            .setFooter({text: 'Make your choice:'})
             .addFields([
                 {name: 'Players :', value: `${interaction.member} vs ${options[1].member}`},
                 {name: 'Do you accept the challenge?', value: `${options[1].member}`}])
@@ -387,7 +389,7 @@ async function start_tictactoe(client, interaction, options) {
 // End of TicTacToe
 
 module.exports = {
-    test: false,
+    test: true,
     data: new DiscordJS.SlashCommandBuilder()
         .setName('play')
         .setDescription('Want to play some games?')
