@@ -9,9 +9,9 @@ async function create_channels(guild, author, limit = null) {
         const embed = new DiscordJS.EmbedBuilder()
         .setColor(DiscordJS.Colors.Aqua).setTimestamp()
         .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))
-        .setTitle("Hi there!")
-        .setFooter({ text: "Created" })
-        .setDescription("There is your own channel!\n`Rules?`\n**Nope!** this channel is temporary.\nEverything you say here will be deleted\nwhen you all leave the channel!")
+        .setTitle('Hi there!')
+        .setFooter({ text: 'Created' })
+        .setDescription('There is your own channel!\n`Rules?`\n**Nope!** this channel is temporary.\nEverything you say here will be deleted\nwhen you all leave the channel!')
         .addFields([{name: '`Channel owner:`', value: `${author}`, inline: true}])
 
         const createdVoice = await guild.channels.create({
@@ -37,9 +37,9 @@ async function create_private_channels(guild, author, limit = null) {
         const embed = new DiscordJS.EmbedBuilder()
         .setColor(DiscordJS.Colors.Aqua).setTimestamp()
         .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))
-        .setTitle("Hi there!")
-        .setFooter({ text: "Created" })
-        .setDescription("There is your own private channel!\n`Rules?`\n**Nope!** this channel is temporary.\nEverything you say here will be deleted\nwhen you all leave the channel!")
+        .setTitle('Hi there!')
+        .setFooter({ text: 'Created' })
+        .setDescription('There is your own private channel!\n`Rules?`\n**Nope!** this channel is temporary.\nEverything you say here will be deleted\nwhen you all leave the channel!')
         .addFields([{name: '`How can you invite a user?`', value: `use \`/invite\` and choose a user or a role`}, {name: '`Channel owner:`', value: `${author}`}])
 
         const createdVoice = await guild.channels.create({

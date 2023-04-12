@@ -9,13 +9,9 @@ exports.get = function(id = null) {
     return temp_channels;
 }
 
-exports.set = function(data) {
-    temp_channels = data;
-}
-
 exports.add = function(voiceId, private = false) {
     temp_channels[voiceId] = {
-        "private": private
+        'private': private
     }
 }
 
@@ -33,5 +29,5 @@ exports.load = async function() {
         const rawdata = fs.readFileSync(file_path);
         const data = JSON.parse(rawdata);
         temp_channels = data;
-    } catch {fs.writeFileSync(file_path, "{}", (err) => {if (err) throw err})}
+    } catch {fs.writeFileSync(file_path, '{}', (err) => {if (err) throw err})}
 }

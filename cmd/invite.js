@@ -1,5 +1,5 @@
 const temp_channels = require('../channels.js');
-const DiscordJS = require("discord.js");
+const DiscordJS = require('discord.js');
 
 async function invite(client, interaction, mention, ping) {
     try {

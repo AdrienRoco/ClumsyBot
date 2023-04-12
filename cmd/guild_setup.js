@@ -21,8 +21,12 @@ async function display_manager(guildId, guild) {
             { name: 'Temporary channels creation channel',
                 value: guilds_settings.get(guildId).temp_chan_create ? guild.channels.cache.get(guilds_settings.get(guildId).temp_chan_create) ? guild.channels.cache.get(guilds_settings.get(guildId).temp_chan_create).name : 'No channel set' : 'No channel set' },
             { name: 'Temporary private channels creation channel',
-                value: guilds_settings.get(guildId).temp_priv_create ? guild.channels.cache.get(guilds_settings.get(guildId).temp_priv_create) ? guild.channels.cache.get(guilds_settings.get(guildId).temp_priv_create).name : 'No channel set' : 'No channel set' }
-        ])
+                value: guilds_settings.get(guildId).temp_priv_create ? guild.channels.cache.get(guilds_settings.get(guildId).temp_priv_create) ? guild.channels.cache.get(guilds_settings.get(guildId).temp_priv_create).name : 'No channel set' : 'No channel set' },
+            { name: 'Auto moderation',
+                value: guilds_settings.get(guildId).auto_mod ? 'Enable' : 'Disable' },
+            { name: 'Auto moderation channel',
+                value: guilds_settings.get(guildId).auto_mod_channel ? guild.channels.cache.get(guilds_settings.get(guildId).auto_mod_channel) ? guild.channels.cache.get(guilds_settings.get(guildId).auto_mod_channel).name : 'No channel set' : 'No channel set' }
+            ])
         return embed
     } catch (e) {console.error('Error in /setup display:', e)}
 }
@@ -60,6 +64,14 @@ module.exports = {
             .setName('reset_temp_chan')
             .setDescription('Reset the temporary channels settings?')
             .setRequired(false))
+        .addBooleanOption(option => option
+            .setName('auto_mod')
+            .setDescription('Do you want to enable the auto moderation?')
+            .setRequired(false))
+        .addChannelOption(option => option
+            .setName('auto_mod_channel')
+            .setDescription('The channel for the auto moderation')
+            .setRequired(false))
         .setDefaultMemberPermissions(DiscordJS.PermissionFlagsBits.Administrator),
     async execute({client, interaction, options}) {
         try {
@@ -68,19 +80,19 @@ module.exports = {
                 await interaction.deferReply({ephemeral: true})
                 if (guilds_settings.get(guildId) == undefined) {guilds_settings.set(guildId); await guilds_settings.save()}
                 for (element in options) {
-                    if (options[element]["name"] == "welcome_message") guilds_settings.modify(guildId, "welcome_message", options[element]["value"])
-                    if (options[element]["name"] == "temp_chan_cat") guilds_settings.modify(guildId, "temp_chan_cat", options[element]["value"])
-                    if (options[element]["name"] == "temp_chan_create") guilds_settings.modify(guildId, "temp_chan_create", options[element]["value"])
-                    if (options[element]["name"] == "temp_priv_create") guilds_settings.modify(guildId, "temp_priv_create", options[element]["value"])
-                    if (options[element]["name"] == "reset_temp_chan") {guilds_settings.modify(guildId, "temp_chan_cat", null); guilds_settings.modify(guildId, "temp_chan_create", null); guilds_settings.modify(guildId, "temp_priv_create", null)}
-                    if (options[element]["name"] == "default_roles") {
-                        if (options[element]["value"] == "clear") guilds_settings.modify(guildId, "default_roles", [])
-                        if (options[element]["value"] == "add") {
+                    if (options[element]['name'] == 'welcome_message') guilds_settings.modify(guildId, 'welcome_message', options[element]['value'])
+                    if (options[element]['name'] == 'temp_chan_cat') guilds_settings.modify(guildId, 'temp_chan_cat', options[element]['value'])
+                    if (options[element]['name'] == 'temp_chan_create') guilds_settings.modify(guildId, 'temp_chan_create', options[element]['value'])
+                    if (options[element]['name'] == 'temp_priv_create') guilds_settings.modify(guildId, 'temp_priv_create', options[element]['value'])
+                    if (options[element]['name'] == 'reset_temp_chan') {guilds_settings.modify(guildId, 'temp_chan_cat', null); guilds_settings.modify(guildId, 'temp_chan_create', null); guilds_settings.modify(guildId, 'temp_priv_create', null)}
+                    if (options[element]['name'] == 'default_roles') {
+                        if (options[element]['value'] == 'clear') guilds_settings.modify(guildId, 'default_roles', [])
+                        if (options[element]['value'] == 'add') {
                             client.CacheInteractions.set(interaction.id, interaction)
                             const row = new DiscordJS.ActionRowBuilder()
                             .addComponents(
                                 new DiscordJS.StringSelectMenuBuilder()
-                                    .setCustomId(`setup_${options[element]["value"]}`)
+                                    .setCustomId(`setup_${options[element]['value']}`)
                                     .setPlaceholder('Select roles to add')
                                     .setMinValues(0)
                                     .addOptions(create_options(interaction.guild))
@@ -89,6 +101,9 @@ module.exports = {
                             await interaction.editReply({components: [row]})
                         }
                     }
+                    if (options[element]['name'] == 'auto_mod') guilds_settings.modify(guildId, 'auto_mod', options[element]['value'])
+                    if (options[element]['name'] == 'auto_mod' && options[element]['value'] == false) guilds_settings.modify(guildId, 'auto_mod_channel', null)
+                    if (options[element]['name'] == 'auto_mod_channel') guilds_settings.modify(guildId, 'auto_mod_channel', options[element]['value'])
                 }
                 await guilds_settings.save()
                 await interaction.editReply({embeds: [await display_manager(guildId, interaction.guild)]})

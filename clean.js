@@ -6,10 +6,11 @@ const client = new DiscordJS.Client({ intents: 3276799 });
 const guild_test_ids = process.env.TEST_IDS.split(',');
 
 client.on('ready', async () => {
+    console.info(`${client.user.username} here! Starting cleaning`)
 // for guild-based commands
     guild_test_ids.forEach(async element => {
         await rest.put(DiscordJS.Routes.applicationGuildCommands(client.user.id, element), { body: [] })
-            .then(() => console.log(`Successfully deleted all ${element} commands.`))
+            .then(() => console.log(`Successfully deleted all ${element} commands`))
             .catch(console.error);
     });
 
