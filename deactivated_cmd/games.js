@@ -1,7 +1,7 @@
 const guilds_settings = require('../configuration.js');
-const colors = require("../../colors.json");
-const types = require("../../arg_type.json");
-const discord = require("discord.js");
+const colors = require('../../colors.json');
+const types = require('../../arg_type.json');
+const discord = require('discord.js');
 
 var roles_list = []
 
@@ -111,6 +111,6 @@ module.exports = {
                 return {content: `${args[0].value ? 'Add' : 'Remove'} your roles`, components: [row], ephemeral: true};
             }
             throw new Error('Unhandled response type')
-        } catch (e) {console.error('Error in /games:', e); return "Oups, I can't do that"}
+        } catch (e) {console.error('Error in /games:', e); return 'Oups, I can\'t do that'}
     },
 }

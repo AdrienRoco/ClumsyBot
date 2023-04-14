@@ -77,7 +77,7 @@ client.on(DiscordJS.Events.MessageCreate, async message => {
 
         const automod = auto_mod.check(client, message)
         switch (automod[0]) {
-            case 1: {return await auto_mod.audit(client, message, automod[1])}
+            case 1: {await auto_mod.audit(client, message, automod[1]); break}
             case 2: {return await auto_mod.delete(client, message, automod[1])}
             default: {break}
         }
