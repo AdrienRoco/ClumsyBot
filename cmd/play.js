@@ -249,6 +249,12 @@ function check_patterns_tictactoe(matrice, pattern) {
     return null
 }
 
+function check_turn(matrice) {
+    let count = 0;
+    for (let row = 0; row < 3; row++) for (let col = 0; col < 3; col++) if (matrice[row][col] > 0) count++;
+    return count;
+}
+
 function find_move_tictactoe(matrice, first) {
     const win_patterns = [[2, 2, 0], [2, 0, 2], [0, 2, 2], [1, 1, 0], [1, 0, 1], [0, 1, 1]]
     var result = null
@@ -257,39 +263,32 @@ function find_move_tictactoe(matrice, first) {
     if (matrice[0][0] == 2 && matrice[1][0] == 1 && matrice[0][2] == 0 && matrice[0][1] == 0 || matrice[2][2] == 2 && matrice[2][1] == 1 && matrice[0][2] == 0 && matrice[1][2] == 0) return [0, 2]
     if (matrice[0][2] == 2 && matrice[1][2] == 1 && matrice[0][0] == 0 && matrice[0][1] == 0 || matrice[2][0] == 2 && matrice[2][1] == 1 && matrice[0][0] == 0 && matrice[1][0] == 0) return [0, 0]
     if (matrice[0][2] == 2 && matrice[0][1] == 1 && matrice[2][2] == 0 && matrice[1][2] == 0 || matrice[2][0] == 2 && matrice[1][0] == 1 && matrice[2][2] == 0 && matrice[2][1] == 0) return [2, 2]
+    if (first) {
+        if (matrice[1][1] == 0) return [1, 1]
+        if (check_turn(matrice) == 3)
+            if (matrice[0][0] == 1 || matrice[0][2] == 1 || matrice[2][0] == 1 || matrice[2][2] == 1) {
+                if (matrice[1][2] == 1 && matrice[0][1] == 0) return [0, 1]
+                if (matrice[0][1] == 1 && matrice[1][0] == 0) return [1, 0]
+                if (matrice[1][0] == 1 && matrice[2][1] == 0) return [2, 1]
+                if (matrice[2][1] == 1 && matrice[1][2] == 0) return [1, 2]
+        }
+    }
     const sec_patterns = [[2, 1, 0], [0, 1, 2]]
     result = null
     for (p in sec_patterns) {result = check_patterns_tictactoe(matrice, sec_patterns[p]); if (result) return result}
-    if (first) {
-        if (matrice[1][1] == 0) return [1, 1]
-        if (matrice[0][0] == 0) return [0, 0]
-        if (matrice[0][2] == 0) return [0, 2]
-        if (matrice[2][0] == 0) return [2, 0]
-        if (matrice[2][2] == 0) return [2, 2]
-        if (matrice[0][1] == 0) return [0, 1]
-        if (matrice[1][0] == 0) return [1, 0]
-        if (matrice[1][2] == 0) return [1, 2]
-        if (matrice[2][1] == 0) return [2, 1]
-    } else {
-        if (matrice[1][1] == 1 && matrice[0][0] == 0) return [0, 0]
-        if (matrice[1][1] == 1 && matrice[0][2] == 0) return [0, 2]
-        if (matrice[1][1] == 1 && matrice[2][0] == 0) return [2, 0]
-        if (matrice[1][1] == 1 && matrice[2][2] == 0) return [2, 2]
-        if (matrice[0][1] == 1 && matrice[1][0] == 1 && matrice[0][0] == 0) return [0, 0]
-        if (matrice[0][1] == 1 && matrice[1][2] == 1 && matrice[0][2] == 0) return [0, 2]
-        if (matrice[1][0] == 1 && matrice[2][1] == 1 && matrice[2][0] == 0) return [2, 0]
-        if (matrice[1][2] == 1 && matrice[2][1] == 1 && matrice[2][2] == 0) return [2, 2]
-        if (matrice[2][1] == 1 && matrice[1][1] == 2 && matrice[1][2] == 0) return [1, 2]
-        if (matrice[1][1] == 0) return [1, 1]
-        if (matrice[0][1] == 0) return [0, 1]
-        if (matrice[1][0] == 0) return [1, 0]
-        if (matrice[1][2] == 0) return [1, 2]
-        if (matrice[2][1] == 0) return [2, 1]
-        if (matrice[0][0] == 0) return [0, 0]
-        if (matrice[0][2] == 0) return [0, 2]
-        if (matrice[2][0] == 0) return [2, 0]
-        if (matrice[2][2] == 0) return [2, 2]
-    }
+    if (matrice[0][1] == 1 && matrice[1][0] == 1 && matrice[0][0] == 0) return [0, 0]
+    if (matrice[0][1] == 1 && matrice[1][2] == 1 && matrice[0][2] == 0) return [0, 2]
+    if (matrice[1][0] == 1 && matrice[2][1] == 1 && matrice[2][0] == 0) return [2, 0]
+    if (matrice[1][2] == 1 && matrice[2][1] == 1 && matrice[2][2] == 0) return [2, 2]
+    if (matrice[0][0] == 0) return [0, 0]
+    if (matrice[0][2] == 0) return [0, 2]
+    if (matrice[2][0] == 0) return [2, 0]
+    if (matrice[2][2] == 0) return [2, 2]
+    if (matrice[1][1] == 0) return [1, 1]
+    if (matrice[0][1] == 0) return [0, 1]
+    if (matrice[1][0] == 0) return [1, 0]
+    if (matrice[1][2] == 0) return [1, 2]
+    if (matrice[2][1] == 0) return [2, 1]
 }
 
 async function solo_tictactoe(client, interaction, game_interaction, x, y) {
