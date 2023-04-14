@@ -388,7 +388,7 @@ async function start_tictactoe(client, interaction, options) {
 // End of TicTacToe
 
 module.exports = {
-    test: true,
+    test: false,
     data: new DiscordJS.SlashCommandBuilder()
         .setName('play')
         .setDescription('Want to play some games?')
