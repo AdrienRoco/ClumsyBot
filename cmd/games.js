@@ -36,7 +36,7 @@ function create_embed(role) {
 }
 
 module.exports = {
-    test: true,
+    test: false,
     data: new DiscordJS.SlashCommandBuilder()
         .setName('game_roles')
         .setDescription('Add game role buttons to the current channel')
