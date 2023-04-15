@@ -9,9 +9,10 @@ exports.get = function(id = null) {
     return temp_channels;
 }
 
-exports.add = function(voiceId, private = false) {
+exports.add = function(voiceId, private = false, hidden = false) {
     temp_channels[voiceId] = {
-        'private': private
+        'private': private,
+        'hidden': hidden
     }
 }
 

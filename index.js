@@ -122,6 +122,11 @@ client.on(DiscordJS.Events.VoiceStateUpdate, async (oldState, newState) => {
                 await client.Commands.get('create').execute({ options })
                 return
             }
+            if (guilds_settings.get(newState.guild.id).temp_hide_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_hide_create) {
+                const options = [{value: 'hide', guild: newState.guild, user: newState.member.user}]
+                await client.Commands.get('create').execute({ options })
+                return
+            }
             return
         }
         // User Move
@@ -132,6 +137,10 @@ client.on(DiscordJS.Events.VoiceStateUpdate, async (oldState, newState) => {
             }
             if (guilds_settings.get(newState.guild.id).temp_priv_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_priv_create) {
                 const options = [{value: 'priv', guild: newState.guild, user: newState.member.user}]
+                await client.Commands.get('create').execute({ options })
+            }
+            if (guilds_settings.get(newState.guild.id).temp_hide_create != null && newState.channel.id == guilds_settings.get(newState.guild.id).temp_hide_create) {
+                const options = [{value: 'hide', guild: newState.guild, user: newState.member.user}]
                 await client.Commands.get('create').execute({ options })
             }
             if (Object.keys(temp_channels.get()).includes(oldState.channel.id) && oldState.channel.members.size == 0) {

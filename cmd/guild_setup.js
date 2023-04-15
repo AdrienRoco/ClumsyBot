@@ -22,6 +22,8 @@ async function display_manager(guildId, guild) {
                 value: guilds_settings.get(guildId).temp_chan_create ? guild.channels.cache.get(guilds_settings.get(guildId).temp_chan_create) ? guild.channels.cache.get(guilds_settings.get(guildId).temp_chan_create).name : 'No channel set' : 'No channel set' },
             { name: 'Temporary private channels creation channel',
                 value: guilds_settings.get(guildId).temp_priv_create ? guild.channels.cache.get(guilds_settings.get(guildId).temp_priv_create) ? guild.channels.cache.get(guilds_settings.get(guildId).temp_priv_create).name : 'No channel set' : 'No channel set' },
+            { name: 'Temporary hidden channels creation channel',
+                value: guilds_settings.get(guildId).temp_hide_create ? guild.channels.cache.get(guilds_settings.get(guildId).temp_hide_create) ? guild.channels.cache.get(guilds_settings.get(guildId).temp_hide_create).name : 'No channel set' : 'No channel set'},
             { name: 'Auto moderation',
                 value: guilds_settings.get(guildId).auto_mod ? 'Enable' : 'Disable' },
             { name: 'Auto moderation channel',
@@ -60,6 +62,10 @@ module.exports = {
             .setName('temp_priv_create')
             .setDescription('The channel for the temporary private channels creation')
             .setRequired(false))
+        .addChannelOption(option => option
+            .setName('temp_hide_create')
+            .setDescription('The channel for the temporary hidden channels creation')
+            .setRequired(false))
         .addBooleanOption(option => option
             .setName('reset_temp_chan')
             .setDescription('Reset the temporary channels settings?')
@@ -84,7 +90,12 @@ module.exports = {
                     if (options[element]['name'] == 'temp_chan_cat') guilds_settings.modify(guildId, 'temp_chan_cat', options[element]['value'])
                     if (options[element]['name'] == 'temp_chan_create') guilds_settings.modify(guildId, 'temp_chan_create', options[element]['value'])
                     if (options[element]['name'] == 'temp_priv_create') guilds_settings.modify(guildId, 'temp_priv_create', options[element]['value'])
-                    if (options[element]['name'] == 'reset_temp_chan') {guilds_settings.modify(guildId, 'temp_chan_cat', null); guilds_settings.modify(guildId, 'temp_chan_create', null); guilds_settings.modify(guildId, 'temp_priv_create', null)}
+                    if (options[element]['name'] == 'temp_hide_create') guilds_settings.modify(guildId, 'temp_hide_create', options[element]['value'])
+                    if (options[element]['name'] == 'reset_temp_chan') {
+                        guilds_settings.modify(guildId, 'temp_chan_cat', null);
+                        guilds_settings.modify(guildId, 'temp_chan_create', null);
+                        guilds_settings.modify(guildId, 'temp_priv_create', null);
+                        guilds_settings.modify(guildId, 'temp_hide_create', null)}
                     if (options[element]['name'] == 'default_roles') {
                         if (options[element]['value'] == 'clear') guilds_settings.modify(guildId, 'default_roles', [])
                         if (options[element]['value'] == 'add') {
