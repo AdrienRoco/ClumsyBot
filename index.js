@@ -63,6 +63,7 @@ client.on(DiscordJS.Events.InteractionCreate, async interaction => {
             else {
                 switch (interaction.customId.split('_')[0]) {
                     case 'automod': {auto_mod.interaction(client, interaction); break}
+                    case 'gameroles': {client.Commands.get('game_roles').execute({client, interaction}); break}
                     default: break;
                 }
             }
@@ -82,8 +83,8 @@ client.on(DiscordJS.Events.MessageCreate, async message => {
             default: {break}
         }
 
-        if (message.content.toLowerCase().replace(/(\?|\!|\.|\,|\s)+$/, '').endsWith('quoi')) {message.reply({ content: 'feur' }); return}
-        if (message.content.toLowerCase().replace(/(\?|\!|\.|\,|\s)+$/, '').endsWith('hein')) {message.reply({ content: 'deux' }); return}
+        if (message.content.toLowerCase().replace(/[^\w]/gi, '').replace(/(.)\1+/g, '$1').endsWith('quoi')) {message.reply({ content: 'feur' }); return}
+        if (message.content.toLowerCase().replace(/[^\w]/gi, '').replace(/(.)\1+/g, '$1').endsWith('hein')) {message.reply({ content: 'deux' }); return}
 
         const clientId1 = `<@${client.user.id}>`
         const clientId2 = `<@!${client.user.id}>`
