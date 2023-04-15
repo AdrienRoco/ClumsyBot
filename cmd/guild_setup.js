@@ -1,5 +1,5 @@
 const guilds_settings = require('../configuration.js');
-const DiscordJS = require('discord.js')
+const DiscordJS = require('discord.js');
 
 function create_options(guild) {
     var result = []
