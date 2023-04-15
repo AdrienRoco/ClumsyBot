@@ -15,6 +15,7 @@ exports.set = function(guildId,
     temp_chan_cat = null,
     temp_chan_create = null,
     temp_priv_create = null,
+    temp_hide_create = null,
     auto_mod = false,
     auto_mod_channel = null)
 {
@@ -24,6 +25,7 @@ exports.set = function(guildId,
         'temp_chan_cat': temp_chan_cat,
         'temp_chan_create': temp_chan_create,
         'temp_priv_create': temp_priv_create,
+        'temp_hide_create': temp_hide_create,
         'auto_mod': auto_mod,
         'auto_mod_channel': auto_mod_channel
     }

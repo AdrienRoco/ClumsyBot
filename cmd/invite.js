@@ -8,7 +8,7 @@ async function invite(client, interaction, mention, ping) {
         .setTitle('Channel info').setColor(DiscordJS.Colors.Green).setTimestamp()
         .setThumbnail(client.users.cache.get(interaction.user.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
         .setDescription(`Fine, I will invite ${mention}🔓`)
-        await channel.permissionOverwrites.edit(mention.id, {ViewChannel: true})
+        await channel.permissionOverwrites.edit(mention.id, {ViewChannel: true, Connect: true, SendMessages: true})
         if (ping) try {message = await channel.send({ content: `${mention}` }); setTimeout(() => message.delete(), 100)} catch {}
         await interaction.editReply({embeds: [embed]})
     } catch (e) {console.error('Error in /invite:', e)}
