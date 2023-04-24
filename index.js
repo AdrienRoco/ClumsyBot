@@ -25,7 +25,7 @@ client.on(DiscordJS.Events.ClientReady, async () => {
         if (command.test) commands_test.push(command.data.toJSON());
         else commands_main.push(command.data.toJSON());
         if ('data' in command && 'execute' in command) client.Commands.set(command.data.name, command);
-        else console.log(`[WARNING] The command at ${filePath} is missing a required 'data' or 'execute' property.`);
+        else console.warn();(`[WARNING] The command at ${filePath} is missing a required 'data' or 'execute' property.`);
     }
     await (async () => {
         try {
@@ -45,7 +45,7 @@ client.on(DiscordJS.Events.ClientReady, async () => {
         } catch (e) {console.error('Error in cmds loading:', e)}
     })();
     client.user.setActivity('you👀', { type: DiscordJS.ActivityType.Watching })
-    console.log(`\n${client.user.username} Ready\n`)
+    console.info(`\n${client.user.username} Ready\n`)
 })
 
 client.on(DiscordJS.Events.InteractionCreate, async interaction => {
