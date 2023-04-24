@@ -25,7 +25,7 @@ client.on(DiscordJS.Events.ClientReady, async () => {
         if (command.test) commands_test.push(command.data.toJSON());
         else commands_main.push(command.data.toJSON());
         if ('data' in command && 'execute' in command) client.Commands.set(command.data.name, command);
-        else console.warn();(`[WARNING] The command at ${filePath} is missing a required 'data' or 'execute' property.`);
+        else console.warn(`[WARNING] The command at ${filePath} is missing a required 'data' or 'execute' property.`);
     }
     await (async () => {
         try {
