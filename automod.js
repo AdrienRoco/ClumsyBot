@@ -101,8 +101,8 @@ exports.interaction = async function(client, interaction) {
         await interaction.deferReply({ ephemeral: true });
         if (!interaction.member.permissions.has(DiscordJS.PermissionFlagsBits.ManageMessages)) {return await interaction.editReply({ content: 'You do not have permission to do that!' });}
         const options = interaction.customId.split('_');
-        const message = client.guilds.cache.get(interaction.guildId).channels.cache.get(interaction.channelId).messages.cache.get(options[2]);
         const user = client.guilds.cache.get(interaction.guildId).members.cache.get(options[3]);
+        const message = await client.guilds.cache.get(interaction.guildId).channels.cache.get(interaction.message.embeds[0].fields[0].value.match(/<#(\d+)>/)?.[1]).messages.fetch(options[2]);
         var embed = DiscordJS.EmbedBuilder.from(interaction.message.embeds[0]).setColor(DiscordJS.Colors.White).setFooter({text: `Action taken by ${interaction.user.username}#${interaction.user.discriminator}`})
             .setFields([interaction.message.embeds[0].fields[0], interaction.message.embeds[0].fields[1], interaction.message.embeds[0].fields[2], interaction.message.embeds[0].fields[3], interaction.message.embeds[0].fields[4]]);
         switch (options[1]) {
@@ -136,7 +136,7 @@ exports.interaction = async function(client, interaction) {
         await user_scores.save();
         await interaction.message.edit({ embeds: [embed], components: [] });
         await interaction.deleteReply();
-    } catch {}
+    } catch (e) {console.error(e)}
 }
 
 exports.audit = async function(client, message, word) {
