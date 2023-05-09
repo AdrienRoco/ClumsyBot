@@ -15,7 +15,8 @@ jobs:
     - name: Build the Docker
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
-      run: docker build -t $DOCKER_USER/clumsy_bot .
+      run: |
+        docker build -t $DOCKER_USER/clumsy_bot .
     - name: Push the Docker
       env:
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
