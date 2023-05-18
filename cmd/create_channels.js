@@ -48,7 +48,7 @@ async function create_private_channels(guild, author, limit = null) {
             nsfw: true,
             permissionOverwrites: [{
                 id: guild.roles.everyone,
-                deny: BigInt(1050624)
+                deny: BigInt(1050625)
             }, {
                 id: author.id,
                 allow: BigInt(1051648)
@@ -82,7 +82,7 @@ async function create_hidden_channels(guild, author, limit = null) {
             nsfw: true,
             permissionOverwrites: [{
                 id: guild.roles.everyone,
-                deny: BigInt(1024)
+                deny: BigInt(1025)
             }, {
                 id: author.id,
                 allow: BigInt(1024)
