@@ -76,12 +76,8 @@ client.on(DiscordJS.Events.MessageCreate, async message => {
         if (message.author.bot) return;
         if (!message.guildId) return;
 
-        const automod = auto_mod.check(client, message)
-        switch (automod[0]) {
-            case 1: {await auto_mod.audit(client, message, automod[1]); break}
-            case 2: {return await auto_mod.delete(client, message, automod[1])}
-            default: {break}
-        }
+        const automod = auto_mod.check(client, message);
+        if (automod[0] !== 0) await auto_mod.audit(client, message, automod[0], automod[1]);
 
         if (message.content.toLowerCase().replace(/[^\w]/gi, '').replace(/(.)\1+/g, '$1').endsWith('quoi')) {message.reply({ content: 'feur' }); return}
         if (message.content.toLowerCase().replace(/[^\w]/gi, '').replace(/(.)\1+/g, '$1').endsWith('hein')) {message.reply({ content: 'deux' }); return}

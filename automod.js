@@ -44,57 +44,40 @@ function standardize_word(word) {
         .replace(/(.)\1+/g, '$1')
 }
 
-function embed_builder(message, type, word) {
+function embed_builder(message, score, words) {
     const embed = new DiscordJS.EmbedBuilder()
-        .setColor(type == 1 ? DiscordJS.Colors.Yellow : type == 2 ? DiscordJS.Colors.Orange : DiscordJS.Colors.White).setTimestamp()
+        .setColor(DiscordJS.Colors.Yellow).setTimestamp()
         .setTitle('AutoMod')
         .setThumbnail(message.author.avatarURL({ dynamic: true, format: 'png', size: 64 }))
-        .setDescription('AutoMod found a suspicious word\nYou might want to check it out!')
+        .setDescription('AutoMod found suspicious words\nYou might want to check it out!')
         .addFields([
             {name: '`Channel:`', value: `${message.channel}\n**${message.guild} - ${message.channel.name}**`, inline: false},
             {name: '`Author:`', value: `${message.author}\n**${message.author.username}#${message.author.discriminator}**`, inline: false},
             {name: '`Score:`', value: `${user_scores.get(message.author.id)['score']}`, inline: false},
             {name: '`Message:`', value: `${message.content}`, inline: false},
-            {name: '`Word:`', value: `${word}`, inline: false},
-            {name: '`Action:`', value: type == 1 ? 'None' : type == 2 ? 'Deleted' : 'Unknown', inline: false}])
-        .setFooter({ text: type == 1 ? 'Flagged' : type == 2 ? 'Deleted' : 'Unknown' })
+            {name: '`Words:`', value: `${words.join(", ")}`, inline: false},
+            {name: '`Weight:`', value: `${score}`, inline: false},
+            {name: '`Action:`', value: 'Under review', inline: false}])
+        .setFooter({ text: 'Flagged' })
     return embed;
 }
 
-function dm_builder(message, type, word, interaction = null) {
-    if (!interaction) {
-        const embed = new DiscordJS.EmbedBuilder()
-            .setColor(type == 2 ? DiscordJS.Colors.Yellow : type == 3 ? DiscordJS.Colors.Orange : type == 4 ? DiscordJS.Colors.Red : DiscordJS.Colors.White).setTimestamp()
-            .setTitle('AutoMod')
-            .setThumbnail(message.author.avatarURL({ dynamic: true, format: 'png', size: 64 }))
-            .setDescription('AutoMod found a suspicious word\nThe message has been deleted!\n' + `${
-                type == 2 ? 'Further actions might be taken after admin review.' :
-                type == 3 ? 'After review, you have been kicked from the server!' :
-                type == 4 ? 'After review, you have been banned from the server!' : 'No further actions have been taken.'}`)
-            .addFields([
-                {name: '`Channel:`', value: `${message.channel}\n**${message.guild} - ${message.channel.name}**`, inline: false},
-                {name: '`Author:`', value: `${message.author}\n**${message.author.username}#${message.author.discriminator}**`, inline: false},
-                {name: '`Message:`', value: `${message.content}`, inline: false},
-                {name: '`Word:`', value: `${word}`, inline: false}])
-            .setFooter({ text: 'Flagged' })
-        return embed;
-    } else {
-        const embed = new DiscordJS.EmbedBuilder()
-        .setColor(type == 2 ? DiscordJS.Colors.Yellow : type == 3 ? DiscordJS.Colors.Orange : type == 4 ? DiscordJS.Colors.Red : DiscordJS.Colors.White).setTimestamp()
-        .setTitle('AutoMod')
-        .setThumbnail(interaction.user.avatarURL({ dynamic: true, format: 'png', size: 64 }))
-        .setDescription('AutoMod found a suspicious word\nThe message has been deleted!\n' + `${
-            type == 2 ? 'Further actions might be taken after admin review.' :
-            type == 3 ? 'After review, you have been kicked from the server!' :
-            type == 4 ? 'After review, you have been banned from the server!' : 'No further actions have been taken.'}`)
-        .addFields([
-            {name: '`Channel:`', value: `${interaction.message.embeds[0].fields[0].value}`, inline: false},
-            {name: '`Author:`', value: `${interaction.message.embeds[0].fields[1].value}`, inline: false},
-            {name: '`Message:`', value: `${interaction.message.embeds[0].fields[3].value}`, inline: false},
-            {name: '`Word:`', value: `${word}`, inline: false}])
-        .setFooter({ text: 'Flagged' })
-        return embed;
-    }
+function dm_builder(type, words, interaction) {
+    const embed = new DiscordJS.EmbedBuilder()
+    .setColor(type == 2 ? DiscordJS.Colors.Yellow : type == 3 ? DiscordJS.Colors.Orange : type == 4 ? DiscordJS.Colors.Red : DiscordJS.Colors.White).setTimestamp()
+    .setTitle('AutoMod')
+    .setThumbnail(interaction.user.avatarURL({ dynamic: true, format: 'png', size: 64 }))
+    .setDescription('AutoMod found suspicious words\n' + `${
+        type == 2 ? 'After review, you\'re message has been deleted!' :
+        type == 3 ? 'After review, you have been kicked from the server!' :
+        type == 4 ? 'After review, you have been banned from the server!' : 'No further actions have been taken.'}`)
+    .addFields([
+        {name: '`Channel:`', value: `${interaction.message.embeds[0].fields[0].value}`, inline: false},
+        {name: '`Author:`', value: `${interaction.message.embeds[0].fields[1].value}`, inline: false},
+        {name: '`Message:`', value: `${interaction.message.embeds[0].fields[3].value}`, inline: false},
+        {name: '`Words:`', value: `${words}`, inline: false}])
+    .setFooter({ text: 'Flagged' })
+    return embed;
 }
 
 exports.interaction = async function(client, interaction) {
@@ -103,33 +86,34 @@ exports.interaction = async function(client, interaction) {
         if (!interaction.member.permissions.has(DiscordJS.PermissionFlagsBits.ManageMessages)) {return await interaction.editReply({ content: 'You do not have permission to do that!' });}
         const options = interaction.customId.split('_');
         const user = client.guilds.cache.get(interaction.guildId).members.cache.get(options[3]);
+        const score = parseInt(options[4]);
         const message = await client.guilds.cache.get(interaction.guildId).channels.cache.get(interaction.message.embeds[0].fields[0].value.match(/<#(\d+)>/)?.[1]).messages.fetch(options[2]);
         var embed = DiscordJS.EmbedBuilder.from(interaction.message.embeds[0]).setColor(DiscordJS.Colors.White).setFooter({text: `Action taken by ${interaction.user.username}#${interaction.user.discriminator}`})
             .setFields([interaction.message.embeds[0].fields[0], interaction.message.embeds[0].fields[1], interaction.message.embeds[0].fields[2], interaction.message.embeds[0].fields[3], interaction.message.embeds[0].fields[4]]);
         switch (options[1]) {
             case '1':
-                embed.addFields({name: '`Action:`', value: interaction.message.embeds[0].fields[5].value == 'Deleted' ? 'Deleted' : 'None', inline: false});
+                embed.addFields({name: '`Action:`', value: 'None', inline: false});
                 break;
             case '2':
-                embed.addFields({name: '`Action:`', value: 'Deleted', inline: false});
                 try {await message.delete()} catch {}
-                await user_scores.add(user.id, `${user.user.username}#${user.user.discriminator}`, interaction.member.guild.name);
-                try {await user.send({ embeds: [dm_builder(message, 2, interaction.message.embeds[0].fields[4].value, interaction)] })} catch (e) {console.log(e)}
+                embed.addFields({name: '`Action:`', value: 'Deleted', inline: false});
+                await user_scores.add(user.id, `${user.user.username}#${user.user.discriminator}`, interaction.member.guild.name, score);
+                try {await user.send({ embeds: [dm_builder(2, interaction.message.embeds[0].fields[4].value, interaction)] })} catch {}
                 break;
             case '3':
                 if (!interaction.member.permissions.has(DiscordJS.PermissionFlagsBits.KickMembers)) {return await interaction.editReply({ content: 'You do not have permission to do that!' });}
-                embed.addFields({name: '`Action:`', value: 'Kicked', inline: false});
                 try {await message.delete()} catch {}
-                await user_scores.add(user.id, `${user.user.username}#${user.user.discriminator}`, interaction.member.guild.name, 2);
-                try {await user.send({ embeds: [dm_builder(message, 3, interaction.message.embeds[0].fields[4].value, interaction)] })} catch {}
+                embed.addFields({name: '`Action:`', value: 'Kicked', inline: false});
+                await user_scores.add(user.id, `${user.user.username}#${user.user.discriminator}`, interaction.member.guild.name, score + 1);
+                try {await user.send({ embeds: [dm_builder(3, interaction.message.embeds[0].fields[4].value, interaction)] })} catch {}
                 try {await user.kick(interaction.message.embeds[0].fields[3].value)} catch {}
                 break;
             case '4':
                 if (!interaction.member.permissions.has(DiscordJS.PermissionFlagsBits.BanMembers)) {return await interaction.editReply({ content: 'You do not have permission to do that!' });}
-                embed.addFields({name: '`Action:`', value: 'Banned', inline: false});
                 try {await message.delete()} catch {}
-                await user_scores.add(user.id, `${user.user.username}#${user.user.discriminator}`, interaction.member.guild.name, 3);
-                try {await user.send({ embeds: [dm_builder(message, 4, interaction.message.embeds[0].fields[4].value, interaction)] })} catch {}
+                embed.addFields({name: '`Action:`', value: 'Banned', inline: false});
+                await user_scores.add(user.id, `${user.user.username}#${user.user.discriminator}`, interaction.member.guild.name, score + 2);
+                try {await user.send({ embeds: [dm_builder(4, interaction.message.embeds[0].fields[4].value, interaction)] })} catch {}
                 try {await user.ban(interaction.message.embeds[0].fields[3].value)} catch {}
                 break;
             default: break;
@@ -140,9 +124,10 @@ exports.interaction = async function(client, interaction) {
     } catch (e) {console.error(e)}
 }
 
-exports.audit = async function(client, message, word) {
+exports.audit = async function(client, message, score, words) {
     const channel = client.channels.cache.get(guilds_settings.get(message.guild.id).auto_mod_channel);
-    const embed = embed_builder(message, 1, word);
+    if (!channel) {return}
+    const embed = embed_builder(message, score, words);
     const actions = new DiscordJS.ActionRowBuilder().addComponents(
         new DiscordJS.ButtonBuilder()
             .setLabel('Ok')
@@ -151,46 +136,20 @@ exports.audit = async function(client, message, word) {
             .setStyle(DiscordJS.ButtonStyle.Success),
         new DiscordJS.ButtonBuilder()
             .setLabel('Delete')
-            .setCustomId(`automod_2_${message.id}_${message.author.id}`)
+            .setCustomId(`automod_2_${message.id}_${message.author.id}_${score}`)
             .setDisabled(false)
             .setStyle(DiscordJS.ButtonStyle.Secondary),
         new DiscordJS.ButtonBuilder()
             .setLabel('Kick')
-            .setCustomId(`automod_3_${message.id}_${message.author.id}`)
+            .setCustomId(`automod_3_${message.id}_${message.author.id}_${score}`)
             .setDisabled(false)
             .setStyle(DiscordJS.ButtonStyle.Primary),
         new DiscordJS.ButtonBuilder()
             .setLabel('Ban')
-            .setCustomId(`automod_4_${message.id}_${message.author.id}`)
+            .setCustomId(`automod_4_${message.id}_${message.author.id}_${score}`)
             .setDisabled(false)
             .setStyle(DiscordJS.ButtonStyle.Danger));
     try {await channel.send({ embeds: [embed], components: [actions] })} catch {}
-}
-
-exports.delete = async function(client, message, word) {
-    const channel = client.channels.cache.get(guilds_settings.get(message.guild.id).auto_mod_channel);
-    const embed = embed_builder(message, 2, word);
-    const actions = new DiscordJS.ActionRowBuilder().addComponents(
-        new DiscordJS.ButtonBuilder()
-            .setLabel('Ok')
-            .setCustomId(`automod_1_${message.id}_${message.author.id}`)
-            .setDisabled(false)
-            .setStyle(DiscordJS.ButtonStyle.Success),
-        new DiscordJS.ButtonBuilder()
-            .setLabel('Kick')
-            .setCustomId(`automod_3_${message.id}_${message.author.id}`)
-            .setDisabled(false)
-            .setStyle(DiscordJS.ButtonStyle.Primary),
-        new DiscordJS.ButtonBuilder()
-            .setLabel('Ban')
-            .setCustomId(`automod_4_${message.id}_${message.author.id}`)
-            .setDisabled(false)
-            .setStyle(DiscordJS.ButtonStyle.Danger));
-    await user_scores.add(message.author.id, `${message.author.username}#${message.author.discriminator}`, message.guild.name);
-    try {await channel.send({ embeds: [embed], components: [actions] })} catch {}
-    try {await message.author.send({ embeds: [dm_builder(message, 2, word)] })} catch {}
-    try {await message.delete()} catch {}
-    await user_scores.save();
 }
 
 exports.check = function(client, message) {
@@ -204,8 +163,13 @@ exports.check = function(client, message) {
     if (!channel) return [0];
     const message_content = standardize_word(message.content);
     const keys = Object.keys(words_list).map((key) => {return [key, words_list[key]]}).sort((first, second) => {return first[1] - second[1]}).map((item) => {return item[0]});
-    var result = 0;
-    keys.forEach(word => {if (message_content.includes(standardize_word(word))) result = [words_list[word], word]})
+    var result = [0, []];
+    keys.forEach(word => {
+        if (message_content.includes(standardize_word(word))) {
+            result[0] += words_list[word];
+            result[1].push(word);
+        }
+    })
     return result;
 }
 
