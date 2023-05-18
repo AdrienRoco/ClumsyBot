@@ -96,23 +96,26 @@ exports.interaction = async function(client, interaction) {
                 break;
             case '2':
                 try {await message.delete()} catch {}
-                embed.addFields({name: '`Action:`', value: 'Deleted', inline: false});
                 await user_scores.add(user.id, `${user.user.username}#${user.user.discriminator}`, interaction.member.guild.name, score);
+                embed.addFields({name: '`Action:`', value: 'Deleted', inline: false});
+                embed.data.fields[2].value = `${parseInt(embed.data.fields[2].value) + score}`;
                 try {await user.send({ embeds: [dm_builder(2, interaction.message.embeds[0].fields[4].value, interaction)] })} catch {}
                 break;
             case '3':
                 if (!interaction.member.permissions.has(DiscordJS.PermissionFlagsBits.KickMembers)) {return await interaction.editReply({ content: 'You do not have permission to do that!' });}
                 try {await message.delete()} catch {}
-                embed.addFields({name: '`Action:`', value: 'Kicked', inline: false});
                 await user_scores.add(user.id, `${user.user.username}#${user.user.discriminator}`, interaction.member.guild.name, score + 1);
+                embed.addFields({name: '`Action:`', value: 'Kicked', inline: false});
+                embed.data.fields[2].value = `${parseInt(embed.data.fields[2].value) + score + 1}`;
                 try {await user.send({ embeds: [dm_builder(3, interaction.message.embeds[0].fields[4].value, interaction)] })} catch {}
                 try {await user.kick(interaction.message.embeds[0].fields[3].value)} catch {}
                 break;
             case '4':
                 if (!interaction.member.permissions.has(DiscordJS.PermissionFlagsBits.BanMembers)) {return await interaction.editReply({ content: 'You do not have permission to do that!' });}
                 try {await message.delete()} catch {}
-                embed.addFields({name: '`Action:`', value: 'Banned', inline: false});
                 await user_scores.add(user.id, `${user.user.username}#${user.user.discriminator}`, interaction.member.guild.name, score + 2);
+                embed.addFields({name: '`Action:`', value: 'Banned', inline: false});
+                embed.data.fields[2].value = `${parseInt(embed.data.fields[2].value) + score + 2}`;
                 try {await user.send({ embeds: [dm_builder(4, interaction.message.embeds[0].fields[4].value, interaction)] })} catch {}
                 try {await user.ban(interaction.message.embeds[0].fields[3].value)} catch {}
                 break;
