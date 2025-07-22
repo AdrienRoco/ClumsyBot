@@ -31,7 +31,7 @@ async function sendWebhook(url, data, options = {}) {
     }
 
     // Set default options
-    const { method = 'GET', headers = {}, timeout = 50000, jwtExpiration = '1h' } = options;
+    const { method = 'POST', headers = {}, timeout = 50000, jwtExpiration = '1h' } = options;
 
     // Create JWT token with the data as payload
     const token = jwt.sign(

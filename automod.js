@@ -24,7 +24,7 @@ function embed_builder(message, webhookResponse) {
   const embed = new DiscordJS.EmbedBuilder()
     .setColor(color)
     .setTimestamp()
-    .setTitle('AutoMod - Webhook Verification')
+    .setTitle('AutoMod')
     .setThumbnail(message.author.avatarURL({ dynamic: true, format: 'png', size: 64 }))
     .setDescription('AutoMod found suspicious content\nYou might want to check it out!')
     .addFields([
@@ -45,7 +45,7 @@ function dm_builder(type, analysis, interaction) {
   const embed = new DiscordJS.EmbedBuilder()
     .setColor(type == 2 ? DiscordJS.Colors.Yellow : type == 3 ? DiscordJS.Colors.Orange : type == 4 ? DiscordJS.Colors.Red : DiscordJS.Colors.White)
     .setTimestamp()
-    .setTitle('AutoMod - Webhook Verification')
+    .setTitle('AutoMod')
     .setThumbnail(interaction.user.avatarURL({ dynamic: true, format: 'png', size: 64 }))
     .setDescription('AutoMod found suspicious content\n' + `${type == 2 ? 'After review, your message has been deleted!' : type == 3 ? 'After review, you have been kicked from the server!' : type == 4 ? 'After review, you have been banned from the server!' : 'No further actions have been taken.'}`)
     .addFields([
