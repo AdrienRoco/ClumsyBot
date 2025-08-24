@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const fetch = require('node-fetch');
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 
 /**
  * Webhook utility that creates a JWT token and sends data to a specified URL
@@ -25,7 +25,7 @@ async function sendWebhook(url, data, options = {}) {
     }
 
     // Get token from environment variables
-    const secret = 'test'; // process.env.TOKEN; // XXX: Uncomment this line to use the TOKEN environment variable
+    const secret = process.env.TOKEN.replace(/[^a-zA-Z0-9]/g, '');
     if (!secret) {
       throw new Error('TOKEN environment variable is not set');
     }

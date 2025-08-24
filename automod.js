@@ -6,6 +6,7 @@
  */
 
 const DiscordJS = require('discord.js');
+const { MessageFlags } = require('discord.js');
 const guilds_settings = require('./configuration.js');
 const user_scores = require('./userscores.js');
 const { sendWebhook } = require('./webhook.js');
@@ -25,11 +26,11 @@ function embed_builder(message, webhookResponse) {
     .setColor(color)
     .setTimestamp()
     .setTitle('AutoMod')
-    .setThumbnail(message.author.avatarURL({ dynamic: true, format: 'png', size: 64 }))
+    .setThumbnail(message.author.avatarURL({ extension: 'png', size: 64 }))
     .setDescription('AutoMod found suspicious content\nYou might want to check it out!')
     .addFields([
       { name: '`Channel:`', value: `${message.channel}\n**${message.guild} - ${message.channel.name}**`, inline: false },
-      { name: '`Author:`', value: `${message.author}\n**${message.author.username}#${message.author.discriminator}**`, inline: false },
+      { name: '`Author:`', value: `${message.author}\n**${message.author.username}**`, inline: false },
       { name: '`Score:`', value: `${user_scores.get(message.author.id)['score']}`, inline: false },
       { name: '`Message:`', value: `${message.content}`, inline: false },
       { name: '`Status:`', value: `${status.toUpperCase()}`, inline: true },
@@ -46,7 +47,7 @@ function dm_builder(type, analysis, interaction) {
     .setColor(type == 2 ? DiscordJS.Colors.Yellow : type == 3 ? DiscordJS.Colors.Orange : type == 4 ? DiscordJS.Colors.Red : DiscordJS.Colors.White)
     .setTimestamp()
     .setTitle('AutoMod')
-    .setThumbnail(interaction.user.avatarURL({ dynamic: true, format: 'png', size: 64 }))
+    .setThumbnail(interaction.user.avatarURL({ extension: 'png', size: 64 }))
     .setDescription('AutoMod found suspicious content\n' + `${type == 2 ? 'After review, your message has been deleted!' : type == 3 ? 'After review, you have been kicked from the server!' : type == 4 ? 'After review, you have been banned from the server!' : 'No further actions have been taken.'}`)
     .addFields([
       { name: '`Channel:`', value: `${interaction.message.embeds[0].fields[0].value}`, inline: false },
@@ -60,7 +61,7 @@ function dm_builder(type, analysis, interaction) {
 
 exports.interaction = async function (client, interaction) {
   try {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     if (!interaction.member.permissions.has(DiscordJS.PermissionFlagsBits.ManageMessages)) {
       return await interaction.editReply({ content: 'You do not have permission to do that!' });
     }
@@ -78,7 +79,7 @@ exports.interaction = async function (client, interaction) {
 
     var embed = DiscordJS.EmbedBuilder.from(interaction.message.embeds[0])
       .setColor(DiscordJS.Colors.White)
-      .setFooter({ text: `Action taken by ${interaction.user.username}#${interaction.user.discriminator}` })
+      .setFooter({ text: `Action taken by ${interaction.user.username}` })
       .setFields([
         interaction.message.embeds[0].fields[0], // Channel
         interaction.message.embeds[0].fields[1], // Author
@@ -99,7 +100,7 @@ exports.interaction = async function (client, interaction) {
         try {
           await message.delete();
         } catch {}
-        await user_scores.add(user.id, `${user.user.username}#${user.user.discriminator}`, interaction.member.guild.name, score);
+        await user_scores.add(user.id, `${user.user.username}`, interaction.member.guild.name, score);
         embed.addFields({ name: '`Action:`', value: 'Deleted', inline: false });
         embed.data.fields[2].value = `${parseInt(embed.data.fields[2].value) + score}`;
         try {
@@ -113,7 +114,7 @@ exports.interaction = async function (client, interaction) {
         try {
           await message.delete();
         } catch {}
-        await user_scores.add(user.id, `${user.user.username}#${user.user.discriminator}`, interaction.member.guild.name, score + 1);
+        await user_scores.add(user.id, `${user.user.username}`, interaction.member.guild.name, score + 1);
         embed.addFields({ name: '`Action:`', value: 'Kicked', inline: false });
         embed.data.fields[2].value = `${parseInt(embed.data.fields[2].value) + score + 1}`;
         try {
@@ -130,7 +131,7 @@ exports.interaction = async function (client, interaction) {
         try {
           await message.delete();
         } catch {}
-        await user_scores.add(user.id, `${user.user.username}#${user.user.discriminator}`, interaction.member.guild.name, score + 2);
+        await user_scores.add(user.id, `${user.user.username}`, interaction.member.guild.name, score + 2);
         embed.addFields({ name: '`Action:`', value: 'Banned', inline: false });
         embed.data.fields[2].value = `${parseInt(embed.data.fields[2].value) + score + 2}`;
         try {
@@ -193,7 +194,6 @@ exports.check = async function (client, message) {
       author: {
         id: message.author.id,
         username: message.author.username,
-        discriminator: message.author.discriminator,
       },
       guild: {
         id: guild.id,
@@ -214,7 +214,8 @@ exports.check = async function (client, message) {
 
     // Check if webhook request was successful
     if (!webhookResult.success) {
-      console.error(`[AutoMod] Webhook request failed:`, webhookResult.error);
+      const errorDetails = webhookResult.error || `${webhookResult.status} ${webhookResult.statusText}`;
+      console.error(`[AutoMod] Webhook request failed:`, errorDetails);
       return null;
     }
 

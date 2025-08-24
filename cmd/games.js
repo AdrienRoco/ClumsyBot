@@ -1,4 +1,5 @@
 const DiscordJS = require('discord.js');
+const { MessageFlags } = require('discord.js');
 
 async function role_manager(user, type, role) {
     try {
@@ -48,7 +49,7 @@ module.exports = {
         .setDefaultMemberPermissions(DiscordJS.PermissionFlagsBits.ManageRoles),
     async execute({interaction, options}) {
         try {
-            await interaction.deferReply({ephemeral: true})
+            await interaction.deferReply({flags: MessageFlags.Ephemeral})
             if (interaction.isCommand()) {
                 if (options[0].role.permissions.bitfield) return await interaction.editReply({content: 'You can\'t select roles with permissions'})
                 await interaction.channel.send({embeds: [create_embed(options[0].role)], components: [create_buttons(options[0].role.id)]})

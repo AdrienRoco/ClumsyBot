@@ -1,4 +1,5 @@
 const DiscordJS = require('discord.js');
+const { MessageFlags } = require('discord.js');
 
 // Start of Shifumi
 function convert(p) {
@@ -411,7 +412,7 @@ module.exports = {
                 if (options[0].value == 'shifumi') await start_shifumi(client, interaction, options)
                 else if (options[0].value == 'tictactoe') await start_tictactoe(client, interaction, options)
             } else if (interaction.isButton()) {
-                await interaction.deferReply({ephemeral: true})
+                await interaction.deferReply({flags: MessageFlags.Ephemeral})
                 var del = true
                 const response = interaction.customId.split('_')
                 game_interaction = client.CacheInteractions.get(response[1])
