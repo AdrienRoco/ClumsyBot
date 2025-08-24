@@ -1,4 +1,5 @@
 const DiscordJS = require('discord.js');
+const { MessageFlags } = require('discord.js');
 
 module.exports = {
     test: false,
@@ -17,7 +18,7 @@ module.exports = {
         try {
             let number = options[0] ? options[0].value : 100;
             await interaction.member.guild.channels.cache.get(interaction.channelId).bulkDelete(number, true)
-            .then(async del => await interaction.reply({content: `I deleted ${del.size} messages.`, ephemeral: true}));
+            .then(async del => await interaction.reply({content: `I deleted ${del.size} messages.`, flags: MessageFlags.Ephemeral}));
         } catch (e) {console.error('Error in /nuke:', e)}
     }
 }

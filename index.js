@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './config/.env' });
+require('dotenv').config({ path: './config/.env', quiet: true });
 const guilds_settings = require('./configuration.js');
 const temp_channels = require('./channels.js');
 const auto_mod = require('./automod.js');
@@ -199,13 +199,13 @@ client.on(DiscordJS.Events.GuildMemberAdd, async (member) => {
       .setTitle('Welcome')
       .setColor(DiscordJS.Colors.DarkGreen)
       .setTimestamp()
-      .setThumbnail(client.users.cache.get(member.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
+      .setThumbnail(client.users.cache.get(member.id).avatarURL({ extension: 'png', size: 64 }))
       .setDescription(`Hey ${member}, welcome to **${member.guild}**!`);
     main.send({ embeds: [embed] });
   }
   if (!member.user.bot && roles_list[0]) {
     for (i in roles_list) {
-      if (guild.roles.cache.map((role) => role).filter((role) => role.tags && role.tags.botId == client.user.id)[0].rawPosition > guild.roles.cache.get(roles_list[i]).rawPosition)
+      if (guild.roles.cache.map((role) => role).filter((role) => role.tags && role.tags.botId == client.user.id)[0].position > guild.roles.cache.get(roles_list[i]).position)
         try {
           await member.roles.add(guild.roles.cache.get(roles_list[i]));
         } catch (e) {
@@ -232,8 +232,8 @@ client.on(DiscordJS.Events.GuildMemberRemove, async (member) => {
       .setTitle('Goodbye')
       .setColor(DiscordJS.Colors.Red)
       .setTimestamp()
-      .setThumbnail(client.users.cache.get(member.id).avatarURL({ dynamic: true, format: 'png', size: 64 }))
-      .setDescription(`Goodbye \`${member.user.username}#${member.user.discriminator}\`, have a great time!`);
+      .setThumbnail(client.users.cache.get(member.id).avatarURL({ extension: 'png', size: 64 }))
+      .setDescription(`Goodbye \`${member.user.username}\`, have a great time!`);
     main.send({ embeds: [embed] });
   }
 });

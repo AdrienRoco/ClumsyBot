@@ -1,5 +1,6 @@
 const guilds_settings = require('../configuration.js');
 const DiscordJS = require('discord.js');
+const { MessageFlags } = require('discord.js');
 
 function create_options(guild) {
     var result = []
@@ -83,7 +84,7 @@ module.exports = {
         try {
             const guildId = interaction.guildId
             if (interaction.isCommand()) {
-                await interaction.deferReply({ephemeral: true})
+                await interaction.deferReply({flags: MessageFlags.Ephemeral})
                 if (guilds_settings.get(guildId) == undefined) {guilds_settings.set(guildId); await guilds_settings.save()}
                 for (element in options) {
                     if (options[element]['name'] == 'welcome_message') guilds_settings.modify(guildId, 'welcome_message', options[element]['value'])
@@ -119,7 +120,7 @@ module.exports = {
                 await guilds_settings.save()
                 await interaction.editReply({embeds: [await display_manager(guildId, interaction.guild)]})
             } else if (interaction.isStringSelectMenu()) {
-                await interaction.deferReply({ephemeral: true})
+                await interaction.deferReply({flags: MessageFlags.Ephemeral})
                 await client.CacheInteractions.get(interaction.message.interaction.id).editReply({components: []})
                 let role_list = guilds_settings.get(guildId).default_roles
                 for (i in interaction.values) {

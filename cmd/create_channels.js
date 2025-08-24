@@ -1,6 +1,7 @@
 const guilds_settings = require('../configuration.js');
 const temp_channels = require('../channels.js');
 const DiscordJS = require('discord.js');
+const { MessageFlags } = require('discord.js');
 
 async function create_channels(guild, author, limit = null) {
     try {
@@ -8,7 +9,7 @@ async function create_channels(guild, author, limit = null) {
         const category = guild.channels.cache.get(guilds_settings.get(guild.id).temp_chan_cat) ? guild.channels.cache.get(guilds_settings.get(guild.id).temp_chan_cat).type === DiscordJS.ChannelType.GuildCategory ? guilds_settings.get(guild.id).temp_chan_cat : null : null;
         const embed = new DiscordJS.EmbedBuilder()
             .setColor(DiscordJS.Colors.Aqua).setTimestamp()
-            .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))
+            .setThumbnail(author.avatarURL({ extension: 'png', size: 128 }))
             .setTitle('Hi there!')
             .setFooter({ text: 'Created' })
             .setDescription('There is your own channel!\n`Rules?`\n**Nope!** this channel is temporary.\nEverything you say here will be deleted\nwhen you all leave the channel!')
@@ -35,7 +36,7 @@ async function create_private_channels(guild, author, limit = null) {
         const category = guild.channels.cache.get(guilds_settings.get(guild.id).temp_chan_cat) ? guild.channels.cache.get(guilds_settings.get(guild.id).temp_chan_cat).type === DiscordJS.ChannelType.GuildCategory ? guilds_settings.get(guild.id).temp_chan_cat : null : null;
         const embed = new DiscordJS.EmbedBuilder()
             .setColor(DiscordJS.Colors.Aqua).setTimestamp()
-            .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))
+            .setThumbnail(author.avatarURL({ extension: 'png', size: 128 }))
             .setTitle('Hi there!')
             .setFooter({ text: 'Created' })
             .setDescription('There is your own private channel!\n`Rules?`\n**Nope!** this channel is temporary.\nEverything you say here will be deleted\nwhen you all leave the channel!')
@@ -69,7 +70,7 @@ async function create_hidden_channels(guild, author, limit = null) {
         const category = guild.channels.cache.get(guilds_settings.get(guild.id).temp_chan_cat) ? guild.channels.cache.get(guilds_settings.get(guild.id).temp_chan_cat).type === DiscordJS.ChannelType.GuildCategory ? guilds_settings.get(guild.id).temp_chan_cat : null : null;
         const embed = new DiscordJS.EmbedBuilder()
             .setColor(DiscordJS.Colors.Aqua).setTimestamp()
-            .setThumbnail(author.avatarURL({ dynamic: true, format: 'png', size: 128 }))
+            .setThumbnail(author.avatarURL({ extension: 'png', size: 128 }))
             .setTitle('Hi there!')
             .setFooter({ text: 'Created' })
             .setDescription('There is your own hidden channel!\n`Rules?`\n**Nope!** this channel is temporary.\nEverything you say here will be deleted\nwhen you all leave the channel!')
@@ -121,7 +122,7 @@ module.exports = {
         try {
             const data = [options[0].value, options[1] ? options[1].value : null];
             if (interaction) {
-                await interaction.deferReply({ephemeral: true});
+                await interaction.deferReply({flags: MessageFlags.Ephemeral});
                 switch (data[0]) {
                 case 'normal':
                     if (await create_channels(interaction.member.guild, interaction.user, data[1])) interaction.editReply({content: 'Ok, done'})

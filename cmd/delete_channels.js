@@ -1,5 +1,6 @@
 const temp_channels = require('../channels.js');
 const DiscordJS = require('discord.js');
+const { MessageFlags } = require('discord.js');
 
 module.exports = {
     test: false,
@@ -10,7 +11,7 @@ module.exports = {
         .setDefaultMemberPermissions(DiscordJS.PermissionFlagsBits.Administrator),
     async execute({client, interaction}) {
         try {
-            if (interaction) await interaction.deferReply({ephemeral: true});
+            if (interaction) await interaction.deferReply({flags: MessageFlags.Ephemeral});
             const list = Object.keys(temp_channels.get());
             for (i in list) {
                 const Channel = client.channels.cache.get(list[i])
